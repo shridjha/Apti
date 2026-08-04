@@ -1,0 +1,347 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>PrepLite - Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "surface-tint": "#a33e00",
+                "on-primary-fixed-variant": "#7c2e00",
+                "surface-container-low": "#f3f3f3",
+                "primary": "#a33e00",
+                "on-secondary": "#ffffff",
+                "surface": "#f9f9f9",
+                "on-error": "#ffffff",
+                "surface-variant": "#e2e2e2",
+                "on-secondary-container": "#564d81",
+                "on-primary-fixed": "#360f00",
+                "surface-bright": "#f9f9f9",
+                "on-tertiary-fixed": "#161c23",
+                "primary-fixed": "#ffdbcd",
+                "inverse-on-surface": "#f1f1f1",
+                "on-secondary-fixed-variant": "#484073",
+                "secondary-container": "#cdc2fe",
+                "on-primary-container": "#5a1f00",
+                "secondary-fixed-dim": "#cabffb",
+                "primary-fixed-dim": "#ffb596",
+                "surface-container-highest": "#e2e2e2",
+                "tertiary-fixed": "#dde3ed",
+                "background": "#f9f9f9",
+                "surface-dim": "#dadada",
+                "on-tertiary": "#ffffff",
+                "outline": "#8d7165",
+                "tertiary-container": "#949aa3",
+                "surface-container-high": "#e8e8e8",
+                "error": "#ba1a1a",
+                "on-background": "#1a1c1c",
+                "on-surface": "#1a1c1c",
+                "on-tertiary-container": "#2c323a",
+                "surface-container": "#eeeeee",
+                "surface-container-lowest": "#ffffff",
+                "outline-variant": "#e1bfb2",
+                "inverse-surface": "#2f3131",
+                "on-tertiary-fixed-variant": "#41474f",
+                "on-surface-variant": "#594137",
+                "inverse-primary": "#ffb596",
+                "error-container": "#ffdad6",
+                "on-primary": "#ffffff",
+                "primary-container": "#fd6e20",
+                "on-secondary-fixed": "#1c1344",
+                "on-error-container": "#93000a",
+                "secondary": "#60578c",
+                "tertiary": "#595f67",
+                "secondary-fixed": "#e6deff",
+                "tertiary-fixed-dim": "#c1c7d1"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "base": "8px",
+                "margin-mobile": "16px",
+                "md": "24px",
+                "lg": "32px",
+                "gutter": "24px",
+                "margin-desktop": "64px",
+                "sm": "12px",
+                "xl": "48px",
+                "xs": "4px"
+        },
+        "fontFamily": {
+                "body-lg": [
+                        "Plus Jakarta Sans"
+                ],
+                "label-md": [
+                        "Plus Jakarta Sans"
+                ],
+                "headline-lg-mobile": [
+                        "Plus Jakarta Sans"
+                ],
+                "body-md": [
+                        "Plus Jakarta Sans"
+                ],
+                "headline-md": [
+                        "Plus Jakarta Sans"
+                ],
+                "headline-sm": [
+                        "Plus Jakarta Sans"
+                ],
+                "headline-lg": [
+                        "Plus Jakarta Sans"
+                ],
+                "headline-xl": [
+                        "Plus Jakarta Sans"
+                ],
+                "body-sm": [
+                        "Plus Jakarta Sans"
+                ]
+        },
+        "fontSize": {
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "500"
+                        }
+                ],
+                "label-md": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "28px",
+                        {
+                                "lineHeight": "36px",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "500"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-sm": [
+                        "20px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "headline-xl": [
+                        "48px",
+                        {
+                                "lineHeight": "56px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-sm": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "500"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        body {
+            background-color: #f9f9f9;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Spring Animation for Cards */
+        .spring-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .spring-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(253, 110, 32, 0.15);
+        }
+        .spring-card:active {
+            transform: translateY(2px) scale(0.98);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .progress-bar-fill {
+            transition: width 1s ease-out;
+        }
+    </style>
+</head>
+<body class="text-on-background min-h-screen flex flex-col items-center font-body-md">
+<!-- Mobile Container (Max width 600px for desktop viewing) -->
+<main class="w-full max-w-[600px] pb-32">
+<!-- TopAppBar -->
+<header class="bg-background dark:bg-background text-primary dark:text-primary-fixed-dim font-headline-md text-headline-md flex items-center justify-between px-margin-mobile py-base w-full sticky z-40 top-0 flat no shadows">
+<button class="text-primary dark:text-primary-fixed-dim hover:opacity-80 active:scale-95 transition-transform flex items-center justify-center">
+<span class="material-symbols-outlined">timer</span>
+</button>
+<div class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed-dim">PrepLite</div>
+<button class="text-on-surface-variant dark:text-on-surface-variant hover:opacity-80 active:scale-95 transition-transform flex items-center justify-center">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</header>
+<div class="px-margin-mobile pt-sm pb-xl">
+<!-- Greeting Section -->
+<section class="mb-lg mt-sm">
+<h1 class="font-headline-xl text-headline-xl text-on-surface mb-xs">Welcome&nbsp;</h1>
+<p class="font-body-md text-body-md text-on-surface-variant opacity-80">Continue your placement preparation</p>
+</section>
+<!-- Main Focus Cards -->
+<section class="space-y-lg mb-xl">
+<!-- Card 1: OA Aptitude -->
+<div class="spring-card bg-primary-container text-white rounded-[32px] p-md shadow-[0_12px_32px_rgba(253,110,32,0.2)] relative overflow-hidden cursor-pointer group">
+<div class="absolute top-0 right-0 p-md opacity-20 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-700">
+<span class="material-symbols-outlined" style="font-size: 120px;">calculate</span>
+</div>
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-xl">
+<div>
+<span class="bg-white/20 text-white font-body-sm text-body-sm px-sm py-xs rounded-full inline-block mb-sm backdrop-blur-sm">Quantitative</span>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile">OA Aptitude</h2>
+</div>
+<span class="material-symbols-outlined text-white/80">more_horiz</span>
+</div>
+<div class="mb-lg">
+<div class="flex justify-between font-body-sm text-body-sm mb-xs text-white/90">
+<span class="">Progress</span>
+<span class="font-label-md">48 / 180</span>
+</div>
+<div class="h-3 w-full bg-black/10 rounded-full overflow-hidden">
+<div class="h-full bg-white rounded-full progress-bar-fill w-[26%] shadow-[inset_0_-2px_4px_rgba(0,0,0,0.1)]"></div>
+</div>
+</div>
+<button class="w-full bg-white text-primary-container font-label-md text-label-md py-sm rounded-xl shadow-md border-b-[3px] border-surface-variant active:border-b-0 active:translate-y-[3px] transition-all flex items-center justify-center gap-2">
+                            Continue <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Card 2: Interview Puzzles -->
+<div class="spring-card bg-secondary text-white rounded-[32px] p-md shadow-[0_12px_32px_rgba(96,87,140,0.3)] relative overflow-hidden cursor-pointer group">
+<div class="absolute top-0 right-0 p-md opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-700">
+<span class="material-symbols-outlined" style="font-size: 120px;">extension</span>
+</div>
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-xl">
+<div>
+<span class="bg-black/10 text-white font-body-sm text-body-sm px-sm py-xs rounded-full inline-block mb-sm backdrop-blur-sm">Logic</span>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile">Interview Puzzles</h2>
+</div>
+<span class="material-symbols-outlined text-white/80">more_horiz</span>
+</div>
+<div class="mb-lg">
+<div class="flex justify-between font-body-sm text-body-sm mb-xs text-white/90">
+<span class="">Progress</span>
+<span class="font-label-md">15 / 80</span>
+</div>
+<div class="h-3 w-full bg-black/10 rounded-full overflow-hidden">
+<div class="h-full bg-white rounded-full progress-bar-fill w-[18%] shadow-[inset_0_-2px_4px_rgba(0,0,0,0.1)]"></div>
+</div>
+</div>
+<button class="w-full bg-white text-secondary font-label-md text-label-md py-sm rounded-xl shadow-md border-b-[3px] border-surface-variant active:border-b-0 active:translate-y-[3px] transition-all flex items-center justify-center gap-2">
+                            Continue <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Recent Activity / Stats -->
+<section>
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Recent Activity</h3>
+<button class="font-label-md text-label-md text-primary-container">See All</button>
+</div>
+<div class="grid grid-cols-2 gap-gutter">
+<!-- Stat Widget 1 -->
+<div class="bg-surface-container-lowest rounded-[24px] p-md shadow-[0_4px_20px_rgba(0,0,0,0.04)] border border-surface-variant/50 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-shadow">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center mb-sm">
+<span class="material-symbols-outlined text-on-primary-fixed">local_fire_department</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-xs">Today's Practice</p>
+<p class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">45 <span class="text-sm font-normal text-on-surface-variant">mins</span></p>
+</div>
+<!-- Stat Widget 2 -->
+<div class="bg-surface-container-lowest rounded-[24px] p-md shadow-[0_4px_20px_rgba(0,0,0,0.04)] border border-surface-variant/50 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-shadow">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center mb-sm">
+<span class="material-symbols-outlined text-on-secondary-fixed">trending_up</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-xs">Weekly Progress</p>
+<p class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">+12% <span class="text-sm font-normal text-on-surface-variant">vs last</span></p>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-md left-margin-mobile right-margin-mobile flex justify-around items-center py-sm shadow-lg z-50 bg-surface-container-lowest dark:bg-surface-container shadow-sm font-label-md text-label-md rounded-xl max-w-[568px] mx-auto">
+<!-- Active Tab: Home -->
+<a class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-xl px-4 py-2 hover:bg-secondary-container/20 dark:hover:bg-secondary-container/10 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: &quot;FILL&quot; 1;">home</span>
+<span class="">Home</span>
+</a>
+<!-- Inactive Tab: Practice -->
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim px-4 py-2 hover:bg-secondary-container/20 dark:hover:bg-secondary-container/10 rounded-xl active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1">fitness_center</span>
+<span class="">Practice</span>
+</a>
+<!-- Inactive Tab: Puzzles -->
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim px-4 py-2 hover:bg-secondary-container/20 dark:hover:bg-secondary-container/10 rounded-xl active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1">extension</span>
+<span class="">Puzzles</span>
+</a>
+<!-- Inactive Tab: Profile -->
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim px-4 py-2 hover:bg-secondary-container/20 dark:hover:bg-secondary-container/10 rounded-xl active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="">Profile</span>
+</a>
+</nav>
+<script>
+        // Simple animation trigger for progress bars on load
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const bars = document.querySelectorAll('.progress-bar-fill');
+                bars.forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 100);
+                });
+            }, 300);
+        });
+    </script>
+
+
+</body></html>

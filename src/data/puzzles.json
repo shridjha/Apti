@@ -1,0 +1,292 @@
+[
+  {
+    "id": "p2",
+    "section": "puzzles",
+    "subcategory": "Logic",
+    "difficulty": "easy",
+    "question": "A man is looking at a photograph. Someone asks, 'Whose picture are you looking at?' He replies, 'I have no brothers or sisters, but this person's father is my father's son.' Whose photograph is it?",
+    "options": ["His father", "His son", "Himself", "His nephew"],
+    "answer": 1,
+    "explanation": "Since he has no siblings, 'my father's son' refers to himself. Therefore, the person's father is him, making the photograph his son.",
+    "timeLimit": 120,
+    "tags": ["Family Relations"]
+  },
+  {
+    "id": "p3",
+    "section": "puzzles",
+    "subcategory": "Logic",
+    "difficulty": "medium",
+    "question": "You have two ropes. Each rope takes exactly one hour to burn, but they burn unevenly. How can you measure exactly 45 minutes?",
+    "options": [
+      "Burn one rope from both ends",
+      "Burn both ropes from one end",
+      "Burn one rope from both ends and the other from one end",
+      "It cannot be measured"
+    ],
+    "answer": 2,
+    "explanation": "Burn Rope A from both ends and Rope B from one end. Rope A finishes in 30 minutes. Then light the other end of Rope B. Since half its burn time remains, burning from both ends finishes it in 15 more minutes. Total = 45 minutes.",
+    "timeLimit": 180,
+    "tags": ["Classic"]
+  },
+  {
+    "id": "p4",
+    "section": "puzzles",
+    "subcategory": "Reasoning",
+    "difficulty": "medium",
+    "question": "A farmer has a fox, a chicken, and a sack of grain. His boat can carry only one item besides himself. If left alone, the fox eats the chicken and the chicken eats the grain. What should he take first?",
+    "options": ["Fox", "Chicken", "Grain", "It doesn't matter"],
+    "answer": 1,
+    "explanation": "Take the chicken first. Then return alone, take the fox, bring the chicken back, take the grain, return alone, and finally take the chicken.",
+    "timeLimit": 180,
+    "tags": ["River Crossing"]
+  },
+  {
+    "id": "p5",
+    "section": "puzzles",
+    "subcategory": "Math",
+    "difficulty": "easy",
+    "question": "A clock shows 3:15. What is the smaller angle between the hour and minute hands?",
+    "options": ["0°", "7.5°", "15°", "22.5°"],
+    "answer": 1,
+    "explanation": "Minute hand = 90°. Hour hand = 3×30 + 15×0.5 = 97.5°. Difference = 7.5°.",
+    "timeLimit": 90,
+    "tags": ["Clock"]
+  },
+  {
+    "id": "p6",
+    "section": "puzzles",
+    "subcategory": "Probability",
+    "difficulty": "medium",
+    "question": "You toss two fair coins. What is the probability of getting at least one head?",
+    "options": ["1/4", "1/2", "3/4", "1"],
+    "answer": 2,
+    "explanation": "Possible outcomes: HH, HT, TH, TT. Three of the four outcomes have at least one head.",
+    "timeLimit": 90,
+    "tags": ["Probability"]
+  },
+  {
+    "id": "p7",
+    "section": "puzzles",
+    "subcategory": "Logic",
+    "difficulty": "hard",
+    "question": "There are 100 lockers, all initially closed. Person 1 opens every locker. Person 2 toggles every second locker. Person 3 toggles every third locker, and so on until Person 100. How many lockers remain open?",
+    "options": ["5", "10", "20", "50"],
+    "answer": 1,
+    "explanation": "Only lockers with perfect square numbers have an odd number of divisors, so only they remain open. Perfect squares ≤100 are 1,4,9,...,100 → 10 lockers.",
+    "timeLimit": 180,
+    "tags": ["Divisors"]
+  },
+  {
+    "id": "p8",
+    "section": "puzzles",
+    "subcategory": "Reasoning",
+    "difficulty": "medium",
+    "question": "A train 150 meters long passes a pole in 10 seconds. What is its speed?",
+    "options": ["15 m/s", "20 m/s", "25 m/s", "30 m/s"],
+    "answer": 0,
+    "explanation": "Speed = Distance ÷ Time = 150 ÷ 10 = 15 m/s.",
+    "timeLimit": 90,
+    "tags": ["Speed"]
+  },
+  {
+    "id": "p9",
+    "section": "puzzles",
+    "subcategory": "Lateral Thinking",
+    "difficulty": "hard",
+    "question": "A man pushes his car to a hotel and immediately knows he is bankrupt. Why?",
+    "options": [
+      "His car broke down",
+      "He lost all his money",
+      "He is playing Monopoly",
+      "His hotel bill is too high"
+    ],
+    "answer": 2,
+    "explanation": "It's a classic lateral-thinking puzzle. The man is playing Monopoly, where landing on a hotel can bankrupt a player.",
+    "timeLimit": 120,
+    "tags": ["Lateral Thinking"]
+  },
+  {
+    "id": "p10",
+    "section": "puzzles",
+    "subcategory": "Math",
+    "difficulty": "easy",
+    "question": "You have a 5-liter jug and a 3-liter jug. Neither has markings. How can you measure exactly 4 liters?",
+    "options": [
+      "Impossible",
+      "Fill 5L, pour into 3L, empty 3L, pour remaining 2L, refill 5L, top off 3L",
+      "Fill both completely",
+      "Only if another jug is available"
+    ],
+    "answer": 1,
+    "explanation": "Fill the 5L jug and pour into the 3L jug (2L left). Empty the 3L jug and transfer the 2L into it. Fill the 5L again and pour into the 3L until it's full (needs 1L). Exactly 4L remain in the 5L jug.",
+    "timeLimit": 180,
+    "tags": ["Water Jug"]
+  },
+  {
+    "id": "p11",
+    "section": "puzzles",
+    "subcategory": "Logic",
+    "difficulty": "medium",
+    "question": "Three people check into a hotel room costing ₹30. They each pay ₹10. Later, the manager realizes the room should have cost ₹25 and gives ₹5 to the bellboy to return. The bellboy keeps ₹2 and returns ₹1 to each guest. Each guest paid ₹9, totaling ₹27. The bellboy kept ₹2. Where is the missing ₹1?",
+    "options": [
+      "The manager kept it",
+      "The math is incorrect",
+      "The bellboy stole it",
+      "There is actually a missing rupee"
+    ],
+    "answer": 1,
+    "explanation": "There is no missing rupee. The ₹27 already includes the ₹2 kept by the bellboy (₹25 hotel + ₹2 bellboy). Adding ₹2 again is the mistake.",
+    "timeLimit": 180,
+    "tags": ["Classic"]
+  },
+   {
+    "id": "p12",
+    "section": "puzzles",
+    "subcategory": "Logic",
+    "difficulty": "medium",
+    "question": "A prisoner is told: 'If you tell a lie, you will be hanged. If you tell the truth, you will be shot.' What can the prisoner say to save himself?",
+    "options": [
+      "I will be hanged.",
+      "I will be shot.",
+      "I am innocent.",
+      "Nothing can save him."
+    ],
+    "answer": 0,
+    "explanation": "If he says 'I will be hanged,' and they hang him, then he told the truth and should have been shot. If they shoot him, then his statement becomes false and he should have been hanged. This creates a paradox.",
+    "timeLimit": 180,
+    "tags": ["Paradox"]
+  },
+  {
+    "id": "p13",
+    "section": "puzzles",
+    "subcategory": "Math",
+    "difficulty": "easy",
+    "question": "A bat and a ball together cost ₹110. The bat costs ₹100 more than the ball. How much does the ball cost?",
+    "options": ["₹5", "₹10", "₹15", "₹20"],
+    "answer": 0,
+    "explanation": "Let the ball cost x. Then the bat costs x + ₹100. So x + (x + 100) = 110 ⇒ 2x = 10 ⇒ x = ₹5.",
+    "timeLimit": 90,
+    "tags": ["Brain Teaser"]
+  },
+  {
+    "id": "p14",
+    "section": "puzzles",
+    "subcategory": "Reasoning",
+    "difficulty": "medium",
+    "question": "A man lives on the 20th floor of a building. Every morning he takes the elevator down to the ground floor. In the evening he takes the elevator up only to the 15th floor and walks the remaining five floors, except when it rains. Why?",
+    "options": [
+      "He likes walking.",
+      "The elevator is broken.",
+      "He is too short to reach the 20th-floor button.",
+      "He is exercising."
+    ],
+    "answer": 2,
+    "explanation": "The man is short and can only reach the 15th-floor button. On rainy days, he uses his umbrella to press the 20th-floor button.",
+    "timeLimit": 150,
+    "tags": ["Lateral Thinking"]
+  },
+  {
+    "id": "p15",
+    "section": "puzzles",
+    "subcategory": "Logic",
+    "difficulty": "hard",
+    "question": "There are 12 identical-looking balls. One is either heavier or lighter than the others. Using a balance scale only three times, can you always identify the odd ball and whether it is heavier or lighter?",
+    "options": [
+      "Yes",
+      "No",
+      "Only if the odd ball is heavier",
+      "Only if the odd ball is lighter"
+    ],
+    "answer": 0,
+    "explanation": "This is the classic 12-ball puzzle. A carefully planned sequence of three weighings can always determine the odd ball and whether it is heavier or lighter.",
+    "timeLimit": 240,
+    "tags": ["Balance Scale"]
+  },
+  {
+    "id": "p16",
+    "section": "puzzles",
+    "subcategory": "Probability",
+    "difficulty": "medium",
+    "question": "You roll two fair six-sided dice. What is the probability that the sum is exactly 7?",
+    "options": ["1/12", "1/6", "5/18", "1/9"],
+    "answer": 1,
+    "explanation": "There are 36 possible outcomes. Six give a sum of 7: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1). Probability = 6/36 = 1/6.",
+    "timeLimit": 90,
+    "tags": ["Probability"]
+  },
+  {
+    "id": "p17",
+    "section": "puzzles",
+    "subcategory": "Logic",
+    "difficulty": "medium",
+    "question": "You have 8 identical-looking balls, but one is heavier. What is the minimum number of weighings needed to find the heavier ball using a balance scale?",
+    "options": ["1", "2", "3", "4"],
+    "answer": 1,
+    "explanation": "Split into groups of 3, 3, and 2. Compare the groups of 3. Based on the result, one more weighing identifies the heavier ball. Minimum = 2 weighings.",
+    "timeLimit": 120,
+    "tags": ["Balance Scale"]
+  },
+  {
+    "id": "p18",
+    "section": "puzzles",
+    "subcategory": "Reasoning",
+    "difficulty": "easy",
+    "question": "What comes next in the sequence? 1, 4, 9, 16, 25, ?",
+    "options": ["30", "35", "36", "49"],
+    "answer": 2,
+    "explanation": "These are perfect squares: 1², 2², 3², 4², 5². The next is 6² = 36.",
+    "timeLimit": 60,
+    "tags": ["Pattern"]
+  },
+  {
+    "id": "p19",
+    "section": "puzzles",
+    "subcategory": "Lateral Thinking",
+    "difficulty": "medium",
+    "question": "A woman gave birth to two sons on the same day, at the same time, in the same year. Yet they are not twins. How is this possible?",
+    "options": [
+      "They were adopted.",
+      "They are triplets.",
+      "They have different fathers.",
+      "One was born first."
+    ],
+    "answer": 1,
+    "explanation": "They are part of a set of triplets (or more), so they are not twins.",
+    "timeLimit": 120,
+    "tags": ["Classic"]
+  },
+  {
+    "id": "p20",
+    "section": "puzzles",
+    "subcategory": "Math",
+    "difficulty": "easy",
+    "question": "If it takes 5 machines 5 minutes to make 5 widgets, how long would it take 100 machines to make 100 widgets?",
+    "options": [
+      "5 minutes",
+      "20 minutes",
+      "100 minutes",
+      "500 minutes"
+    ],
+    "answer": 0,
+    "explanation": "Each machine makes one widget in 5 minutes. Therefore, 100 machines make 100 widgets in the same 5 minutes.",
+    "timeLimit": 60,
+    "tags": ["Brain Teaser"]
+  },
+  {
+    "id": "p21",
+    "section": "puzzles",
+    "subcategory": "Logic",
+    "difficulty": "hard",
+    "question": "Three switches outside control three fans inside a room. You may enter the room only once. Unlike bulbs, all fans are initially off. How can you determine which switch controls which fan?",
+    "options": [
+      "Turn all switches on.",
+      "Turn one switch on for a while, turn it off, turn another on, then enter.",
+      "It is impossible.",
+      "Keep switching randomly."
+    ],
+    "answer": 1,
+    "explanation": "Run Switch 1 for a few minutes, then turn it off. Turn Switch 2 on and enter. The running fan belongs to Switch 2. The stopped but warm fan belongs to Switch 1. The cold fan belongs to Switch 3.",
+    "timeLimit": 180,
+    "tags": ["Classic"]
+  }
+]

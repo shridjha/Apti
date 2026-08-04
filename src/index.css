@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #a33e00;
+  --color-primary-container: #fd6e20;
+  --color-on-primary-container: #5a1f00;
+  --color-secondary: #60578c;
+  --color-secondary-container: #cdc2fe;
+  --color-on-secondary-container: #564d81;
+  --color-on-secondary: #ffffff;
+  
+  --color-tertiary: #595f67;
+  --color-tertiary-container: #949aa3;
+  --color-on-tertiary-container: #2c323a;
+  --color-on-tertiary: #ffffff;
+  
+  --color-surface: #f9f9f9;
+  --color-on-surface: #1a1c1c;
+  --color-surface-variant: #e2e2e2;
+  --color-on-surface-variant: #594137;
+  --color-background: #f9f9f9;
+  --color-on-background: #1a1c1c;
+  
+  --color-primary-fixed: #ffdbcd;
+  --color-on-primary-fixed: #360f00;
+  --color-primary-fixed-dim: #ffb596;
+  --color-on-primary-fixed-variant: #7c2e00;
+  
+  --color-secondary-fixed: #e6deff;
+  --color-on-secondary-fixed: #1c1344;
+  --color-secondary-fixed-dim: #cabffb;
+  --color-on-secondary-fixed-variant: #484073;
+
+  --color-tertiary-fixed: #dde3ed;
+  --color-on-tertiary-fixed: #161c23;
+  --color-tertiary-fixed-dim: #c1c7d1;
+  --color-on-tertiary-fixed-variant: #41474f;
+
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f3f3f3;
+  --color-surface-container: #eeeeee;
+  --color-surface-container-high: #e8e8e8;
+  --color-surface-container-highest: #e2e2e2;
+  
+  --color-outline: #8d7165;
+  --color-outline-variant: #e1bfb2;
+
+  --font-headline-xl: "Plus Jakarta Sans", sans-serif;
+  --font-headline-lg: "Plus Jakarta Sans", sans-serif;
+  --font-headline-md: "Plus Jakarta Sans", sans-serif;
+  --font-headline-sm: "Plus Jakarta Sans", sans-serif;
+  --font-headline-lg-mobile: "Plus Jakarta Sans", sans-serif;
+  --font-body-lg: "Plus Jakarta Sans", sans-serif;
+  --font-body-md: "Plus Jakarta Sans", sans-serif;
+  --font-body-sm: "Plus Jakarta Sans", sans-serif;
+  --font-label-md: "Plus Jakarta Sans", sans-serif;
+
+  --spacing-safe-margin: 24px;
+  --spacing-margin-mobile: 16px;
+  --spacing-margin-desktop: 64px;
+  --spacing-xs: 4px;
+  --spacing-base: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 24px;
+  --spacing-lg: 32px;
+  --spacing-xl: 48px;
+  --spacing-gutter: 24px;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-on-background);
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@layer utilities {
+  .spring-card {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .spring-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(253, 110, 32, 0.15);
+  }
+  .spring-card:active {
+    transform: translateY(2px) scale(0.98);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  .progress-bar-fill {
+    transition: width 1s ease-out;
+  }
+}
