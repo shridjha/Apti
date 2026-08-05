@@ -90,4 +90,10 @@
   .progress-bar-fill {
     transition: width 1s ease-out;
   }
+  .font-handwritten {
+    font-family: 'Caveat', cursive;
+  }
+  .font-doodle {
+    font-family: 'Fredoka', sans-serif;
+  }
 }

@@ -26,6 +26,7 @@ export default function PracticeFlow() {
   const [selectedOption, setSelectedOption] = useState(null);
   const [puzzleAnswer, setPuzzleAnswer] = useState('');
   const [showExplanation, setShowExplanation] = useState(false);
+  const [puzzleSelfAssessed, setPuzzleSelfAssessed] = useState(false);
   const [startTime, setStartTime] = useState(Date.now());
 
   // Timer state
@@ -44,6 +45,7 @@ export default function PracticeFlow() {
       setSelectedOption(null);
       setPuzzleAnswer('');
       setShowExplanation(false);
+      setPuzzleSelfAssessed(false);
       hasStartedRef.current = false;
       setTimeLeft(currentQ.timeLimit || 60);
       // Mark as started on next tick so the auto-submit guard works
@@ -81,11 +83,11 @@ export default function PracticeFlow() {
 
   const handleTimeUp = useCallback(() => {
     const timeSpent = currentQ.timeLimit || 60;
-    if (isPuzzle) {
-      recordAttempt(currentQ.id, false, timeSpent, section);
-    } else {
+    if (!isPuzzle) {
+      // Aptitude: auto-record result on timeout
       recordAttempt(currentQ.id, selectedOption === currentQ.answer, timeSpent, section);
     }
+    // Puzzles: defer to self-assessment buttons
     posthog.capture('question_timeout', { section, topic, question_id: currentQ.id });
     setShowExplanation(true);
   }, [currentQ, selectedOption, isPuzzle, section, topic, recordAttempt]);
@@ -118,11 +120,16 @@ export default function PracticeFlow() {
   const handleSubmitPuzzle = () => {
     if (!puzzleAnswer.trim()) return;
     clearInterval(timerRef.current);
-    const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-    // For puzzles we record as completed (self-assessed)
-    recordAttempt(currentQ.id, true, timeSpent, section);
-    posthog.capture('question_completed', { section, topic, question_id: currentQ.id, timeSpent });
+    // Don't record attempt yet — wait for self-assessment
+    posthog.capture('puzzle_answer_revealed', { section, topic, question_id: currentQ.id });
     setShowExplanation(true);
+  };
+
+  const handlePuzzleSelfAssess = (gotItRight) => {
+    const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+    recordAttempt(currentQ.id, gotItRight, timeSpent, section);
+    posthog.capture('question_completed', { section, topic, question_id: currentQ.id, isCorrect: gotItRight, timeSpent });
+    setPuzzleSelfAssessed(true);
   };
 
   const handleNext = () => {
@@ -294,6 +301,24 @@ export default function PracticeFlow() {
           >
             {isPuzzle ? 'Submit Answer' : 'Check Answer'}
           </button>
+        ) : isPuzzle && !puzzleSelfAssessed ? (
+          /* Puzzle self-assessment buttons */
+          <div className="flex gap-3">
+            <button 
+              onClick={() => handlePuzzleSelfAssess(false)}
+              className="flex-1 py-3.5 sm:py-md rounded-[16px] sm:rounded-2xl font-label-md text-[14px] sm:text-[16px] font-semibold bg-[#fce4ec] text-[#c62828] border-2 border-[#c62828]/30 shadow-sm active:scale-[0.97] transition-all flex items-center justify-center gap-2"
+            >
+              <span className="material-symbols-outlined text-[20px]">close</span>
+              I Got That Wrong
+            </button>
+            <button 
+              onClick={() => handlePuzzleSelfAssess(true)}
+              className="flex-1 py-3.5 sm:py-md rounded-[16px] sm:rounded-2xl font-label-md text-[14px] sm:text-[16px] font-semibold bg-[#e8f5e9] text-[#2e7d32] border-2 border-[#2e7d32]/30 shadow-sm active:scale-[0.97] transition-all flex items-center justify-center gap-2"
+            >
+              <span className="material-symbols-outlined text-[20px]">check</span>
+              I Got That Right
+            </button>
+          </div>
         ) : (
           <button 
             onClick={handleNext}

@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import aptitudeData from '../data/aptitude.json';
 import puzzlesData from '../data/puzzles.json';
 import { useProgressStore } from '../store/useProgressStore';
+import posthog from 'posthog-js';
 
 export default function TopicView() {
   const { section } = useParams();
@@ -13,6 +14,10 @@ export default function TopicView() {
   const title = section === 'aptitude' ? 'OA Aptitude' : 'Interview Puzzles';
   const colorClass = section === 'aptitude' ? 'text-primary' : 'text-secondary';
   const barColor = section === 'aptitude' ? 'bg-primary-container' : 'bg-secondary';
+
+  useEffect(() => {
+    posthog.capture('topic_selection_viewed', { section });
+  }, [section]);
 
   if (!data) return <div>Invalid section</div>;
 
@@ -37,8 +42,8 @@ export default function TopicView() {
             <p className="font-body-md text-[13px] sm:text-[16px] leading-[18px] sm:leading-[24px] font-medium text-on-surface-variant opacity-80">Choose what you want to practice today</p>
           </section>
 
-          {/* Topic Cards */}
-          <section className="space-y-3 sm:space-y-sm mb-xl">
+          {/* Topic Cards — Grid Layout */}
+          <section className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-xl">
             {subcategories.map(sub => {
               const qs = data.filter(q => q.subcategory === sub);
               const total = qs.length;
@@ -51,34 +56,32 @@ export default function TopicView() {
                 <Link
                   to={`/${section}/practice?topic=${encodeURIComponent(sub)}`}
                   key={sub}
-                  className="block spring-card bg-surface-container-lowest rounded-[16px] sm:rounded-[20px] p-3.5 sm:p-md shadow-[0_4px_20px_rgba(0,0,0,0.04)] border border-surface-variant/50 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] cursor-pointer"
+                  onClick={() => posthog.capture('topic_selected', { section, topic: sub, completionPercent })}
+                  className="block spring-card bg-surface-container-lowest rounded-[20px] sm:rounded-[24px] p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.04)] border border-surface-variant/50 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] cursor-pointer"
                 >
-                  {/* Row 1: Topic name + question count */}
-                  <div className="flex justify-between items-center mb-2 sm:mb-sm">
-                    <h3 className="font-headline-lg-mobile text-[16px] sm:text-[20px] leading-[22px] sm:leading-[28px] font-bold text-on-surface">{sub}</h3>
-                    <span className="font-label-md text-[11px] sm:text-[12px] leading-[16px] tracking-[0.05em] font-semibold text-on-surface-variant">{total} Qs</span>
+                  {/* Topic name + question count */}
+                  <div className="flex justify-between items-start mb-3 gap-1">
+                    <h3 className="font-headline-lg-mobile text-[16px] sm:text-[18px] leading-[1.2] font-bold text-on-surface">{sub}</h3>
+                    <span className="font-label-md text-[10px] sm:text-[11px] leading-[16px] tracking-[0.05em] font-semibold text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded-md whitespace-nowrap shrink-0">{total} Qs</span>
                   </div>
 
                   {/* Progress bar */}
-                  <div className="h-[6px] sm:h-2 w-full bg-surface-variant/60 rounded-full overflow-hidden mb-1.5 sm:mb-2">
+                  <div className="h-[5px] sm:h-[6px] w-full bg-surface-variant/60 rounded-full overflow-hidden mb-2">
                     <div
                       className={`h-full rounded-full transition-all duration-700 ease-out ${barColor}`}
                       style={{ width: `${completionPercent}%` }}
                     ></div>
                   </div>
 
-                  {/* Row 2: Completion % + Accuracy % */}
-                  <div className="flex items-center gap-1">
-                    <span className="font-label-md text-[10px] sm:text-[11px] leading-[14px] tracking-[0.02em] font-bold text-on-surface-variant">
+                  {/* Completion + Accuracy */}
+                  <div className="flex flex-wrap items-center gap-x-1 gap-y-0">
+                    <span className="font-label-md text-[10px] sm:text-[11px] leading-[16px] tracking-[0.02em] font-bold text-on-surface-variant">
                       {completionPercent}% complete
                     </span>
                     {completed > 0 && (
-                      <>
-                        <span className="text-on-surface-variant/40 text-[10px] sm:text-[11px]">·</span>
-                        <span className="font-label-md text-[10px] sm:text-[11px] leading-[14px] tracking-[0.02em] font-bold text-on-surface-variant">
-                          {accuracyPercent}% accuracy
-                        </span>
-                      </>
+                      <span className="font-label-md text-[10px] sm:text-[11px] leading-[16px] tracking-[0.02em] font-bold text-on-surface-variant">
+                        {accuracyPercent}% accuracy
+                      </span>
                     )}
                   </div>
                 </Link>

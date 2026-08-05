@@ -3,38 +3,56 @@ import { Link } from 'react-router-dom';
 import aptitudeData from '../data/aptitude.json';
 import puzzlesData from '../data/puzzles.json';
 import { useProgressStore } from '../store/useProgressStore';
+import posthog from 'posthog-js';
 
 export default function Home() {
   const {
     completedQuestions,
     getTodayPracticeMinutes,
     getWeeklyProgressPercent,
-    getCompletedBySection,
+    streaks,
+    lastActive,
   } = useProgressStore();
 
   const todayPractice = getTodayPracticeMinutes();
   const todayMins = todayPractice.minutes;
   const todayHasActivity = todayPractice.totalSeconds > 0;
   const weeklyPercent = getWeeklyProgressPercent();
-  const aptitudeCompleted = getCompletedBySection('q');
-  const puzzlesCompleted = getCompletedBySection('p');
+
   const totalAptitude = aptitudeData.length;
   const totalPuzzles = puzzlesData.length;
+
+  // Sync only completed question IDs that exist in the active JSON datasets
+  const aptitudeCompleted = completedQuestions.filter(id => aptitudeData.some(q => q.id === id)).length;
+  const puzzlesCompleted = completedQuestions.filter(id => puzzlesData.some(q => q.id === id)).length;
+
   const aptitudePercent = totalAptitude > 0 ? Math.round((aptitudeCompleted / totalAptitude) * 100) : 0;
   const puzzlesPercent = totalPuzzles > 0 ? Math.round((puzzlesCompleted / totalPuzzles) * 100) : 0;
 
+  // React-controlled state for progress bar transition
+  const [aptitudeWidth, setAptitudeWidth] = React.useState(0);
+  const [puzzlesWidth, setPuzzlesWidth] = React.useState(0);
+
   useEffect(() => {
-    // Progress bar animation on mount
+    // Send user profile stats to PostHog for PM segmentation and cohort analysis
+    posthog.people.set({
+      streak_count: streaks,
+      last_active_time: lastActive,
+      aptitude_completed: aptitudeCompleted,
+      puzzles_completed: puzzlesCompleted,
+      total_completed: aptitudeCompleted + puzzlesCompleted,
+      aptitude_progress_percent: aptitudePercent,
+      puzzles_progress_percent: puzzlesPercent,
+    });
+    posthog.capture('home_viewed');
+  }, [streaks, lastActive, aptitudeCompleted, puzzlesCompleted, aptitudePercent, puzzlesPercent]);
+
+  useEffect(() => {
+    // Delay slightly to trigger transition from 0% to target percent
     const timeout = setTimeout(() => {
-      const bars = document.querySelectorAll('.progress-bar-fill');
-      bars.forEach(bar => {
-        const target = bar.dataset.width || '0%';
-        bar.style.width = '0%';
-        setTimeout(() => {
-          bar.style.width = target;
-        }, 100);
-      });
-    }, 300);
+      setAptitudeWidth(aptitudePercent);
+      setPuzzlesWidth(puzzlesPercent);
+    }, 200);
     return () => clearTimeout(timeout);
   }, [aptitudePercent, puzzlesPercent]);
 
@@ -43,10 +61,13 @@ export default function Home() {
       {/* Mobile Container */}
       <main className="w-full max-w-[600px] pb-12">
         {/* TopAppBar */}
-        <header className="bg-background flex items-center justify-center px-4 sm:px-margin-mobile py-base w-full sticky z-40 top-0">
-          <div className="font-headline-lg text-[28px] sm:text-[32px] leading-[40px] tracking-[-0.01em] font-bold text-primary">Apti</div>
+        <header className="bg-background sticky top-0 z-40 flex items-center justify-start px-4 sm:px-6 py-4">
+          <img
+            src="/logo.png"
+            alt="Apti"
+            className="h-10 sm:h-12 w-auto object-contain"
+          />
         </header>
-
         <div className="px-4 sm:px-margin-mobile pt-sm pb-xl">
           {/* Greeting Section */}
           <section className="mb-lg mt-sm">
@@ -87,76 +108,116 @@ export default function Home() {
           </section>
 
           {/* Main Focus Cards */}
-          <section className="space-y-lg">
+          <section className="space-y-10 mt-2">
+
             {/* Card 1: OA Aptitude */}
-            <Link
-              to="/aptitude"
-              className="block spring-card bg-primary-container text-white rounded-[24px] sm:rounded-[32px] p-4 sm:p-md shadow-[0_12px_32px_rgba(253,110,32,0.2)] relative overflow-hidden cursor-pointer group"
-            >
-              <div className="absolute top-0 right-0 p-md opacity-20 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-700">
-                <span className="material-symbols-outlined" style={{ fontSize: '100px' }}>calculate</span>
-              </div>
-              <div className="relative z-10">
-                <div className="flex justify-between items-start mb-lg sm:mb-xl">
-                  <div>
-                    <span className="bg-white/20 text-white font-body-sm text-[12px] sm:text-[14px] leading-[16px] sm:leading-[20px] font-medium px-sm py-xs rounded-full inline-block mb-sm backdrop-blur-sm">Quantitative</span>
-                    <h2 className="font-headline-lg-mobile text-[24px] sm:text-[28px] leading-[32px] sm:leading-[36px] font-bold">OA Aptitude</h2>
-                  </div>
-                  <span className="material-symbols-outlined text-white/80"></span>
+            <div className="relative pt-8">
+              {/* Sticker text — plain handwritten text above the card */}
+              {/* <p
+                className="font-handwritten text-[#e85d04] text-[17px] sm:text-[19px] font-semibold absolute -top-1 left-4 sm:left-5 z-20 max-w-[80%] leading-[1.3]"
+                style={{ transform: 'rotate(-1.5deg)' }}
+              >
+                ✏️ Carefully selected questions that match the exact style of OAs of tech & non-tech companies
+              </p> */}
+
+              <Link
+                to="/aptitude"
+                onClick={() => posthog.capture('section_selected', { section: 'aptitude' })}
+                className="block spring-card rounded-[24px] sm:rounded-[28px] p-5 sm:p-6 relative overflow-hidden cursor-pointer group"
+                style={{ background: 'linear-gradient(145deg, #ff8c42, #FD6E20, #e85d04)' }}
+              >
+                {/* Background icon */}
+                <div className="absolute top-4 right-4 opacity-[0.12] pointer-events-none group-hover:opacity-[0.18] transition-opacity duration-500">
+                  <span className="material-symbols-outlined" style={{ fontSize: '90px' }}>calculate</span>
                 </div>
-                <div className="mb-lg">
-                  <div className="flex justify-between font-body-sm text-[12px] sm:text-[14px] leading-[16px] sm:leading-[20px] font-medium mb-xs text-white/90">
-                    <span>Progress</span>
-                    <span className="font-label-md text-[12px] leading-[16px] tracking-[0.05em] font-semibold">{aptitudeCompleted} / {totalAptitude}</span>
+
+                <div className="relative z-10 pt-6">
+                  {/* Category badge */}
+                  <span className="inline-block bg-white/20 text-white font-label-md text-[12px] sm:text-[13px] font-semibold px-3 py-1 rounded-full mb-2 backdrop-blur-sm">
+                    OA questions that matches exact style of comapnies 
+                  </span>
+
+                  {/* Title */}
+                  <h2 className="font-headline-lg-mobile text-white text-[26px] sm:text-[30px] leading-[1.15] font-bold mb-6">
+                    OA Aptitude
+                  </h2>
+
+                  {/* Progress */}
+                  <div className="mb-5">
+                    <div className="flex justify-between text-[14px] sm:text-[16px] font-bold mb-1.5 text-white/90 italic">
+                      <span>Progress</span>
+                      <span className="not-italic font-bold">{aptitudeCompleted} / {totalAptitude}</span>
+                    </div>
+                    <div className="h-2.5 sm:h-3 w-full bg-black/15 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-white rounded-full progress-bar-fill"
+                        style={{ width: `${aptitudeWidth}%`, boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.08)' }}
+                      ></div>
+                    </div>
                   </div>
-                  <div className="h-2.5 sm:h-3 w-full bg-black/10 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-white rounded-full progress-bar-fill shadow-[inset_0_-2px_4px_rgba(0,0,0,0.1)]"
-                      data-width={`${aptitudePercent}%`}
-                      style={{ width: `${aptitudePercent}%` }}
-                    ></div>
+
+                  {/* Continue button */}
+                  <div className="w-full bg-white text-[#FD6E20] font-label-md text-[15px] sm:text-[17px] font-semibold py-2.5 sm:py-3 rounded-xl shadow-md border-b-[3px] border-black/5 active:border-b-0 active:translate-y-[3px] transition-all flex items-center justify-center gap-2">
+                    Continue <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                   </div>
                 </div>
-                <div className="w-full bg-white text-primary-container font-label-md text-[12px] leading-[16px] tracking-[0.05em] font-semibold py-2.5 sm:py-sm rounded-xl shadow-md border-b-[3px] border-surface-variant active:border-b-0 active:translate-y-[3px] transition-all flex items-center justify-center gap-2">
-                  Continue <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-                </div>
-              </div>
-            </Link>
+              </Link>
+            </div>
 
             {/* Card 2: Interview Puzzles */}
-            <Link
-              to="/puzzles"
-              className="block spring-card bg-secondary text-white rounded-[24px] sm:rounded-[32px] p-4 sm:p-md shadow-[0_12px_32px_rgba(96,87,140,0.3)] relative overflow-hidden cursor-pointer group"
-            >
-              <div className="absolute top-0 right-0 p-md opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-700">
-                <span className="material-symbols-outlined" style={{ fontSize: '100px' }}>extension</span>
-              </div>
-              <div className="relative z-10">
-                <div className="flex justify-between items-start mb-lg sm:mb-xl">
-                  <div>
-                    <span className="bg-black/10 text-white font-body-sm text-[12px] sm:text-[14px] leading-[16px] sm:leading-[20px] font-medium px-sm py-xs rounded-full inline-block mb-sm backdrop-blur-sm">Logic</span>
-                    <h2 className="font-headline-lg-mobile text-[24px] sm:text-[28px] leading-[32px] sm:leading-[36px] font-bold">Interview Puzzles</h2>
-                  </div>
-                  <span className="material-symbols-outlined text-white/80"></span>
+            <div className="relative pt-8">
+              {/* Sticker text — plain handwritten text above the card */}
+              {/* <p
+                className="font-handwritten text-[#5c4d8a] text-[17px] sm:text-[19px] font-semibold absolute -top-1 left-4 sm:left-5 z-20 max-w-[80%] leading-[1.3]"
+                style={{ transform: 'rotate(1deg)' }}
+              >
+                🧩 Most repeated puzzles in product-based companies
+              </p> */}
+
+              <Link
+                to="/puzzles"
+                onClick={() => posthog.capture('section_selected', { section: 'puzzles' })}
+                className="block spring-card rounded-[24px] sm:rounded-[28px] p-5 sm:p-6 relative overflow-hidden cursor-pointer group"
+                style={{ background: 'linear-gradient(145deg, #7a6faa, #60578C, #504878)' }}
+              >
+                {/* Background icon */}
+                <div className="absolute top-4 right-4 opacity-[0.10] pointer-events-none group-hover:opacity-[0.16] transition-opacity duration-500">
+                  <span className="material-symbols-outlined" style={{ fontSize: '90px' }}>extension</span>
                 </div>
-                <div className="mb-lg">
-                  <div className="flex justify-between font-body-sm text-[12px] sm:text-[14px] leading-[16px] sm:leading-[20px] font-medium mb-xs text-white/90">
-                    <span>Progress</span>
-                    <span className="font-label-md text-[12px] leading-[16px] tracking-[0.05em] font-semibold">{puzzlesCompleted} / {totalPuzzles}</span>
+
+                <div className="relative z-10 pt-6">
+                  {/* Category badge */}
+                  <span className="inline-block bg-white/15 text-white font-label-md text-[12px] sm:text-[13px] font-semibold px-3 py-1 rounded-full mb-2 backdrop-blur-sm">
+                    Most repeated puzzles in product-based companies
+                  </span>
+
+                  {/* Title */}
+                  <h2 className="font-headline-lg-mobile text-white text-[26px] sm:text-[30px] leading-[1.15] font-bold mb-6">
+                    Interview Puzzles
+                  </h2>
+
+                  {/* Progress */}
+                  <div className="mb-5">
+                    <div className="flex justify-between text-[14px] sm:text-[16px] font-bold mb-1.5 text-white/90 italic">
+                      <span>Progress</span>
+                      <span className="not-italic font-bold">{puzzlesCompleted} / {totalPuzzles}</span>
+                    </div>
+                    <div className="h-2.5 sm:h-3 w-full bg-white/15 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-white rounded-full progress-bar-fill"
+                        style={{ width: `${puzzlesWidth}%`, boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.08)' }}
+                      ></div>
+                    </div>
                   </div>
-                  <div className="h-2.5 sm:h-3 w-full bg-black/10 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-white rounded-full progress-bar-fill shadow-[inset_0_-2px_4px_rgba(0,0,0,0.1)]"
-                      data-width={`${puzzlesPercent}%`}
-                      style={{ width: `${puzzlesPercent}%` }}
-                    ></div>
+
+                  {/* Continue button */}
+                  <div className="w-full bg-white text-[#60578C] font-label-md text-[15px] sm:text-[17px] font-semibold py-2.5 sm:py-3 rounded-xl shadow-md border-b-[3px] border-black/5 active:border-b-0 active:translate-y-[3px] transition-all flex items-center justify-center gap-2">
+                    Continue <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                   </div>
                 </div>
-                <div className="w-full bg-white text-secondary font-label-md text-[12px] leading-[16px] tracking-[0.05em] font-semibold py-2.5 sm:py-sm rounded-xl shadow-md border-b-[3px] border-surface-variant active:border-b-0 active:translate-y-[3px] transition-all flex items-center justify-center gap-2">
-                  Continue <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-                </div>
-              </div>
-            </Link>
+              </Link>
+            </div>
+
           </section>
         </div>
       </main>
