@@ -51,14 +51,16 @@ export default function Home() {
           {/* Greeting Section */}
           <section className="mb-lg mt-sm">
             <p className="font-label-md text-[13px] sm:text-[16px] leading-[20px] tracking-[0.15em] font-bold text-primary-container/80 uppercase" style={{ fontFamily: 'monospace' }}>NO LOGIN &nbsp;·&nbsp; NO SETUP &nbsp;·&nbsp; START SOLVING</p>
-            <p className="font-body-md text-[11px] sm:text-[13px] leading-[16px] sm:leading-[20px] font-medium text-on-surface-variant opacity-80 mt-xs">Stay consistent, track your progress, and ace your Interview!</p>
+            <p className="font-body-md text-[11px] sm:text-[13px] font-medium [word-spacing:6px] opacity-80">
+  YOUR PROGRESS IS SAVED LOCALLY
+</p>
           </section>
 
           {/* Recent Activity / Stats — ABOVE the cards */}
           <section className="mb-xl">
             <div className="flex justify-between items-center mb-md">
               <h3 className="font-headline-lg-mobile text-[24px] sm:text-[28px] leading-[32px] sm:leading-[36px] font-bold text-on-surface">Recent Activity</h3>
-              <button className="font-label-md text-[12px] leading-[16px] tracking-[0.05em] font-semibold text-primary-container hover:opacity-80 transition-opacity">See All</button>
+              {/* <button className="font-label-md text-[12px] leading-[16px] tracking-[0.05em] font-semibold text-primary-container hover:opacity-80 transition-opacity">See All</button> */}
             </div>
             <div className="grid grid-cols-2 gap-4 sm:gap-gutter">
               {/* Stat Widget 1 — Today's Practice */}
@@ -100,7 +102,7 @@ export default function Home() {
                     <span className="bg-white/20 text-white font-body-sm text-[12px] sm:text-[14px] leading-[16px] sm:leading-[20px] font-medium px-sm py-xs rounded-full inline-block mb-sm backdrop-blur-sm">Quantitative</span>
                     <h2 className="font-headline-lg-mobile text-[24px] sm:text-[28px] leading-[32px] sm:leading-[36px] font-bold">OA Aptitude</h2>
                   </div>
-                  <span className="material-symbols-outlined text-white/80">more_horiz</span>
+                  <span className="material-symbols-outlined text-white/80"></span>
                 </div>
                 <div className="mb-lg">
                   <div className="flex justify-between font-body-sm text-[12px] sm:text-[14px] leading-[16px] sm:leading-[20px] font-medium mb-xs text-white/90">
@@ -135,7 +137,7 @@ export default function Home() {
                     <span className="bg-black/10 text-white font-body-sm text-[12px] sm:text-[14px] leading-[16px] sm:leading-[20px] font-medium px-sm py-xs rounded-full inline-block mb-sm backdrop-blur-sm">Logic</span>
                     <h2 className="font-headline-lg-mobile text-[24px] sm:text-[28px] leading-[32px] sm:leading-[36px] font-bold">Interview Puzzles</h2>
                   </div>
-                  <span className="material-symbols-outlined text-white/80">more_horiz</span>
+                  <span className="material-symbols-outlined text-white/80"></span>
                 </div>
                 <div className="mb-lg">
                   <div className="flex justify-between font-body-sm text-[12px] sm:text-[14px] leading-[16px] sm:leading-[20px] font-medium mb-xs text-white/90">
