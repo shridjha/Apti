@@ -17,15 +17,21 @@ export default function PracticeFlow() {
   const sectionLabel = isPuzzle ? 'Puzzles' : 'Aptitude';
   
   const { recordAttempt, completedQuestions } = useProgressStore();
-  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Start at the first uncompleted question so half-done topics resume where the user left off
+  const firstUncompletedIndex = questions.findIndex(q => !completedQuestions.includes(q.id));
+  const startIndex = firstUncompletedIndex === -1 ? 0 : firstUncompletedIndex;
+
+  const [currentIndex, setCurrentIndex] = useState(startIndex);
   const [selectedOption, setSelectedOption] = useState(null);
   const [puzzleAnswer, setPuzzleAnswer] = useState('');
   const [showExplanation, setShowExplanation] = useState(false);
   const [startTime, setStartTime] = useState(Date.now());
 
   // Timer state
-  const [timeLeft, setTimeLeft] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(() => questions[startIndex]?.timeLimit || 60);
   const timerRef = useRef(null);
+  const hasStartedRef = useRef(false);
 
   const currentQ = questions[currentIndex];
   const timeLimit = currentQ?.timeLimit || 60;
@@ -38,7 +44,10 @@ export default function PracticeFlow() {
       setSelectedOption(null);
       setPuzzleAnswer('');
       setShowExplanation(false);
+      hasStartedRef.current = false;
       setTimeLeft(currentQ.timeLimit || 60);
+      // Mark as started on next tick so the auto-submit guard works
+      requestAnimationFrame(() => { hasStartedRef.current = true; });
     }
   }, [currentIndex, currentQ?.id, section, topic]);
 
@@ -65,7 +74,7 @@ export default function PracticeFlow() {
 
   // Auto-submit when timer reaches 0
   useEffect(() => {
-    if (timeLeft === 0 && !showExplanation && currentQ) {
+    if (timeLeft === 0 && !showExplanation && currentQ && hasStartedRef.current) {
       handleTimeUp();
     }
   }, [timeLeft]);
