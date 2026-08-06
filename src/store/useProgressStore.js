@@ -59,6 +59,29 @@ export const useProgressStore = create(
         return Math.round(((thisWeek - lastWeek) / lastWeek) * 100);
       },
 
+      // Get weekly stats: questions solved and accuracy
+      getWeeklyStats: () => {
+        const state = get();
+        const now = new Date();
+        const thisWeekStart = new Date(now);
+        thisWeekStart.setDate(now.getDate() - now.getDay());
+        thisWeekStart.setHours(0, 0, 0, 0);
+
+        let solved = 0;
+        let correct = 0;
+        Object.values(state.attempts).forEach(a => {
+          if (a.timestamp) {
+            const d = new Date(a.timestamp);
+            if (d >= thisWeekStart) {
+              solved++;
+              if (a.correct) correct++;
+            }
+          }
+        });
+        const accuracy = solved > 0 ? Math.round((correct / solved) * 100) : 0;
+        return { solved, accuracy };
+      },
+
       // Count completed questions by section prefix
       getCompletedBySection: (prefix) => {
         const state = get();

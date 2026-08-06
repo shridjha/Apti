@@ -9,7 +9,7 @@ export default function Home() {
   const {
     completedQuestions,
     getTodayPracticeMinutes,
-    getWeeklyProgressPercent,
+    getWeeklyStats,
     streaks,
     lastActive,
   } = useProgressStore();
@@ -17,7 +17,7 @@ export default function Home() {
   const todayPractice = getTodayPracticeMinutes();
   const todayMins = todayPractice.minutes;
   const todayHasActivity = todayPractice.totalSeconds > 0;
-  const weeklyPercent = getWeeklyProgressPercent();
+  const weeklyStats = getWeeklyStats();
 
   const totalAptitude = aptitudeData.length;
   const totalPuzzles = puzzlesData.length;
@@ -94,15 +94,22 @@ export default function Home() {
                   {todayMins > 0 ? todayMins : (todayHasActivity ? '< 1' : '0')} <span className="text-xs sm:text-sm font-normal text-on-surface-variant">mins</span>
                 </p>
               </div>
-              {/* Stat Widget 2 — Weekly Progress */}
+              {/* Stat Widget 2 — This Week */}
               <div className="bg-surface-container-lowest rounded-[20px] sm:rounded-[24px] p-4 sm:p-md shadow-[0_4px_20px_rgba(0,0,0,0.04)] border border-surface-variant/50 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-shadow">
                 <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-secondary-fixed flex items-center justify-center mb-sm">
-                  <span className="material-symbols-outlined text-on-secondary-fixed text-[20px] sm:text-[24px]">trending_up</span>
+                  <span className="material-symbols-outlined text-on-secondary-fixed text-[20px] sm:text-[24px]">insert_chart</span>
                 </div>
-                <p className="font-body-sm text-[12px] sm:text-[14px] leading-[16px] sm:leading-[20px] font-medium text-on-surface-variant mb-xs">Weekly Progress</p>
-                <p className="font-headline-lg-mobile text-[24px] sm:text-[28px] leading-[32px] sm:leading-[36px] font-bold text-on-surface">
-                  {weeklyPercent >= 0 ? '+' : ''}{weeklyPercent}% <span className="text-xs sm:text-sm font-normal text-on-surface-variant">vs last</span>
-                </p>
+                <p className="font-body-sm text-[12px] sm:text-[14px] leading-[16px] sm:leading-[20px] font-semibold text-on-surface mb-2.5">This Week</p>
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center">
+                    <span className="font-body-sm text-[12px] sm:text-[13px] font-medium text-on-surface-variant">Questions Solved</span>
+                    <span className="font-label-md text-[14px] sm:text-[16px] font-bold text-on-surface">{weeklyStats.solved}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-body-sm text-[12px] sm:text-[13px] font-medium text-on-surface-variant">Accuracy</span>
+                    <span className="font-label-md text-[14px] sm:text-[16px] font-bold text-on-surface">{weeklyStats.accuracy}%</span>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
