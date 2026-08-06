@@ -29,6 +29,32 @@ export default function PracticeFlow() {
   const [puzzleSelfAssessed, setPuzzleSelfAssessed] = useState(false);
   const [startTime, setStartTime] = useState(Date.now());
 
+  // Report modal state
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportSubmitted, setReportSubmitted] = useState(false);
+
+  const reportReasons = [
+    { id: 'wrong_answer', label: 'Wrong Answer', icon: 'close' },
+    { id: 'typo', label: 'Typo', icon: 'spellcheck' },
+    { id: 'incorrect_explanation', label: 'Incorrect Explanation', icon: 'menu_book' },
+    { id: 'duplicate', label: 'Duplicate', icon: 'content_copy' },
+    { id: 'other', label: 'Other', icon: 'more_horiz' },
+  ];
+
+  const handleReport = (reason) => {
+    posthog.capture('question_reported', {
+      section,
+      topic,
+      question_id: currentQ.id,
+      question_text: currentQ.question,
+      reason: reason.id,
+      reason_label: reason.label,
+    });
+    setShowReportModal(false);
+    setReportSubmitted(true);
+    setTimeout(() => setReportSubmitted(false), 2500);
+  };
+
   // Timer state
   const [timeLeft, setTimeLeft] = useState(() => questions[startIndex]?.timeLimit || 60);
   const timerRef = useRef(null);
@@ -69,6 +95,8 @@ export default function PracticeFlow() {
         requestAnimationFrame(() => { hasStartedRef.current = true; });
       }
     }
+    setReportSubmitted(false);
+    setShowReportModal(false);
   }, [currentIndex, currentQ?.id, section, topic]);
 
   // Countdown timer
@@ -206,12 +234,22 @@ export default function PracticeFlow() {
               }`}>
                 {currentQ.difficulty}
               </span>
-              {!isCompleted && (
-                <span className="flex items-center gap-1 text-on-surface-variant font-label-md text-[12px] sm:text-[13px] font-semibold ml-auto">
-                  <span className="material-symbols-outlined text-[18px]">timer</span>
-                  {timeLeft}s
-                </span>
-              )}
+              <div className="flex items-center gap-2 ml-auto">
+                {!isCompleted && (
+                  <span className="flex items-center gap-1 text-on-surface-variant font-label-md text-[12px] sm:text-[13px] font-semibold">
+                    <span className="material-symbols-outlined text-[18px]">timer</span>
+                    {timeLeft}s
+                  </span>
+                )}
+                <button
+                  onClick={() => setShowReportModal(true)}
+                  className="flex items-center justify-center gap-1 px-2 py-1 rounded-full hover:bg-surface-variant/50 active:scale-90 transition-all text-on-surface-variant/60 hover:text-on-surface-variant"
+                  title="Report this question"
+                >
+                  <span className="material-symbols-outlined text-[16px]">flag</span>
+                  <span className="font-label-md text-[11px] sm:text-[12px] font-semibold">Report</span>
+                </button>
+              </div>
             </div>
 
             {/* Timer progress bar */}
@@ -316,6 +354,67 @@ export default function PracticeFlow() {
           )}
         </div>
       </main>
+
+      {/* Report Modal */}
+      {showReportModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+          onClick={() => setShowReportModal(false)}
+        >
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+
+          {/* Bottom sheet */}
+          <div
+            className="relative w-full max-w-[600px] bg-surface-container-lowest rounded-t-[28px] sm:rounded-[28px] p-5 sm:p-6 pb-8 animate-slide-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Handle bar */}
+            <div className="w-10 h-1 rounded-full bg-surface-variant/60 mx-auto mb-5 sm:hidden" />
+
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="font-headline-sm text-[18px] sm:text-[20px] font-bold text-on-surface flex items-center gap-2">
+                <span className="material-symbols-outlined text-[22px] text-error">flag</span>
+                Report Question
+              </h3>
+              <button
+                onClick={() => setShowReportModal(false)}
+                className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-surface-variant/40 active:scale-90 transition-all text-on-surface-variant"
+              >
+                <span className="material-symbols-outlined text-[22px]">close</span>
+              </button>
+            </div>
+
+            <p className="font-body-sm text-[13px] sm:text-[14px] text-on-surface-variant mb-4">What's wrong with this question?</p>
+
+            <div className="space-y-2">
+              {reportReasons.map((reason) => (
+                <button
+                  key={reason.id}
+                  onClick={() => handleReport(reason)}
+                  className="w-full flex items-center gap-3 p-3.5 sm:p-4 rounded-[16px] border-2 border-surface-variant bg-surface-container-lowest hover:border-primary/40 hover:bg-primary-fixed-dim/10 active:scale-[0.98] transition-all text-left"
+                >
+                  <span className="w-9 h-9 rounded-full bg-surface-variant/40 flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-[18px] text-on-surface-variant">{reason.icon}</span>
+                  </span>
+                  <span className="font-body-md text-[14px] sm:text-[15px] font-semibold text-on-surface">{reason.label}</span>
+                  <span className="material-symbols-outlined text-[18px] text-on-surface-variant/40 ml-auto">chevron_right</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Report submitted toast */}
+      {reportSubmitted && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[60] animate-slide-down">
+          <div className="bg-[#1b5e20] text-white px-5 py-3 rounded-2xl shadow-lg flex items-center gap-2 font-label-md text-[14px] font-semibold">
+            <span className="material-symbols-outlined text-[20px]">check_circle</span>
+            Thanks! Report submitted.
+          </div>
+        </div>
+      )}
 
       {/* Bottom action button */}
       <div className="fixed bottom-0 left-0 w-full px-4 py-3 sm:p-margin-mobile bg-surface max-w-[600px] left-1/2 -translate-x-1/2 border-t border-surface-variant">
