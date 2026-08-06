@@ -421,14 +421,19 @@
   },
   {
     "id": "p36",
-    "section": "puzzles",
-    "subcategory": "Mathematical And Analytical Puzzles",
-    "difficulty": "medium",
-    "question": "A man is asked the ages of his 2 daughters. He says: \"The product of their ages is 24, one is older, and I won't tell you more.\" The asker still can't determine the ages, so the man adds: \"The older one has red hair.\" Now the asker knows. What are the daughters' ages?",
-    "options": ["4 and 6", "3 and 8", "2 and 12", "1 and 24"],
-    "answer": 0,
-    "explanation": "All factor pairs of 24 are considered, but only the pair (4, 6) still has ambiguity about which is older after just knowing the product — until told there IS an older one, which resolves it since (4,6) are the only pair close enough to cause confusion resolved by 'has an older sibling.'",
-    "timeLimit": 210,
+  "section": "puzzles",
+  "subcategory": "Mathematical And Analytical Puzzles",
+  "difficulty": "medium",
+  "question": "A father is asked the ages of his three children. He replies, \"The product of their ages is 72.\" The other person says that isn't enough information. The father then adds, \"The sum of their ages is equal to my house number.\" After looking at the house number, the person still cannot determine the ages. Finally, the father says, \"My oldest child loves playing the violin.\" With this final clue, the ages can be determined. What are the ages of the three children?",
+  "options": [
+    "2, 6, 6",
+    "3, 3, 8",
+    "3, 4, 6",
+    "2, 4, 9"
+  ],
+  "answer": 1,
+  "explanation": "List all triples whose product is 72. Most have unique sums except (2, 6, 6) and (3, 3, 8), both of which sum to 14. Since the observer still couldn't determine the ages after seeing the house number, the house number must be 14. The final clue mentions 'my oldest child,' implying there is exactly one oldest child. This eliminates (2, 6, 6), where the two oldest children are both 6 years old. Therefore, the only possible ages are 3, 3, and 8.",
+  "timeLimit": 210,
     "tags": ["Google", "Microsoft"]
   },
   {
