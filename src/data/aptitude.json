@@ -36,8 +36,8 @@
     "explanation": "Locate the first occurrence of the digit, then count only the occurrences that appear to the right of that position.",
     "timeLimit": 12,
     "tags": ["Attention to Detail", "Counting", "Speed"],
-    "answer": 2,
-    "reviewFlag": "Answer appears incorrect. The string has 6 total '8's (indices 0,1,5,6,10,12, 0-indexed). Excluding the first occurrence (index 0) leaves 5 occurrences after it, so the correct answer should be option index 3 ('5'), not index 2 ('6'). Left original answer unchanged per instructions — flagging for manual review."
+    "answer": 3
+    
   },
   {
     "id": "q5",

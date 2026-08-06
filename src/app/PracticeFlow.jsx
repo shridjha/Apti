@@ -37,19 +37,37 @@ export default function PracticeFlow() {
   const currentQ = questions[currentIndex];
   const timeLimit = currentQ?.timeLimit || 60;
 
+  // Track whether we're navigating back to a completed question
+  const [navigatingBack, setNavigatingBack] = useState(false);
+
   // Reset everything when question changes
   useEffect(() => {
     if (currentQ) {
-      posthog.capture('question_started', { section, topic, question_id: currentQ.id });
-      setStartTime(Date.now());
-      setSelectedOption(null);
-      setPuzzleAnswer('');
-      setShowExplanation(false);
-      setPuzzleSelfAssessed(false);
-      hasStartedRef.current = false;
-      setTimeLeft(currentQ.timeLimit || 60);
-      // Mark as started on next tick so the auto-submit guard works
-      requestAnimationFrame(() => { hasStartedRef.current = true; });
+      const isAlreadyCompleted = completedQuestions.includes(currentQ.id);
+      
+      if (navigatingBack && isAlreadyCompleted) {
+        // Going back to a completed question — show it in review mode
+        setShowExplanation(true);
+        setPuzzleSelfAssessed(true);
+        setSelectedOption(currentQ.answer); // Show the correct answer highlighted
+        setPuzzleAnswer('');
+        hasStartedRef.current = false;
+        setTimeLeft(0);
+        clearInterval(timerRef.current);
+        setNavigatingBack(false);
+      } else {
+        // Normal forward navigation — fresh question
+        posthog.capture('question_started', { section, topic, question_id: currentQ.id });
+        setStartTime(Date.now());
+        setSelectedOption(null);
+        setPuzzleAnswer('');
+        setShowExplanation(false);
+        setPuzzleSelfAssessed(false);
+        hasStartedRef.current = false;
+        setTimeLeft(currentQ.timeLimit || 60);
+        // Mark as started on next tick so the auto-submit guard works
+        requestAnimationFrame(() => { hasStartedRef.current = true; });
+      }
     }
   }, [currentIndex, currentQ?.id, section, topic]);
 
@@ -134,10 +152,18 @@ export default function PracticeFlow() {
 
   const handleNext = () => {
     if (currentIndex < questions.length - 1) {
+      setNavigatingBack(false);
       setCurrentIndex(prev => prev + 1);
     } else {
       posthog.capture('topic_completed', { section, topic });
       navigate('/');
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentIndex > 0) {
+      setNavigatingBack(true);
+      setCurrentIndex(prev => prev - 1);
     }
   };
 
@@ -320,12 +346,24 @@ export default function PracticeFlow() {
             </button>
           </div>
         ) : (
-          <button 
-            onClick={handleNext}
-            className="w-full py-3.5 sm:py-md rounded-[16px] sm:rounded-2xl font-label-md text-[16px] sm:text-lg font-semibold bg-primary text-white shadow-md active:scale-[0.98] transition-all"
-          >
-            {currentIndex < questions.length - 1 ? 'Next Question' : 'Finish Practice'}
-          </button>
+          <div className="flex gap-3">
+            {currentIndex > 0 && (
+              <button 
+                onClick={handlePrevious}
+                className="py-3.5 sm:py-md px-4 rounded-[16px] sm:rounded-2xl font-label-md text-[14px] sm:text-[16px] font-semibold bg-surface-container-lowest text-on-surface border-2 border-surface-variant shadow-sm active:scale-[0.97] transition-all flex items-center justify-center gap-1.5"
+              >
+                <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+                Previous
+              </button>
+            )}
+            <button 
+              onClick={handleNext}
+              className="flex-1 py-3.5 sm:py-md rounded-[16px] sm:rounded-2xl font-label-md text-[16px] sm:text-lg font-semibold bg-primary text-white shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
+            >
+              {currentIndex < questions.length - 1 ? 'Next Question' : 'Finish Practice'}
+              {currentIndex < questions.length - 1 && <span className="material-symbols-outlined text-[18px]">arrow_forward</span>}
+            </button>
+          </div>
         )}
       </div>
     </div>
