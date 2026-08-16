@@ -9,6 +9,15 @@ export const useProgressStore = create(
       attempts: {},
       streaks: 0,
       lastActive: null,
+      // Push notification prompt tracking
+      notificationDismissCount: 0,  // how many times user dismissed the prompt
+      notificationAccepted: false,  // true once user accepts notifications
+      
+      dismissNotificationPrompt: () => set((state) => ({
+        notificationDismissCount: state.notificationDismissCount + 1,
+      })),
+      
+      acceptNotification: () => set({ notificationAccepted: true }),
       
       recordAttempt: (qId, correct, timeSpent, section) => set((state) => {
         const attempts = {

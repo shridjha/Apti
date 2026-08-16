@@ -16,7 +16,7 @@ export default function PracticeFlow() {
   const questions = data.filter(q => q.subcategory === topic);
   const sectionLabel = isPuzzle ? 'Puzzles' : 'Aptitude';
   
-  const { recordAttempt, completedQuestions } = useProgressStore();
+  const { recordAttempt, completedQuestions, notificationDismissCount, notificationAccepted, dismissNotificationPrompt, acceptNotification } = useProgressStore();
 
   // Start at the first uncompleted question so half-done topics resume where the user left off
   const firstUncompletedIndex = questions.findIndex(q => !completedQuestions.includes(q.id));
@@ -27,11 +27,17 @@ export default function PracticeFlow() {
   const [puzzleAnswer, setPuzzleAnswer] = useState('');
   const [showExplanation, setShowExplanation] = useState(false);
   const [puzzleSelfAssessed, setPuzzleSelfAssessed] = useState(false);
+  const [timeExpired, setTimeExpired] = useState(false);
+  const [showRedBlink, setShowRedBlink] = useState(false);
   const [startTime, setStartTime] = useState(Date.now());
 
   // Report modal state
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportSubmitted, setReportSubmitted] = useState(false);
+
+  // Push notification prompt state
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const sessionCompletionsRef = useRef(0);
 
   const reportReasons = [
     { id: 'wrong_answer', label: 'Wrong Answer', icon: 'close' },
@@ -89,6 +95,8 @@ export default function PracticeFlow() {
         setPuzzleAnswer('');
         setShowExplanation(false);
         setPuzzleSelfAssessed(false);
+        setTimeExpired(false);
+        setShowRedBlink(false);
         hasStartedRef.current = false;
         setTimeLeft(currentQ.timeLimit || 60);
         // Mark as started on next tick so the auto-submit guard works
@@ -120,23 +128,41 @@ export default function PracticeFlow() {
     return () => clearInterval(timerRef.current);
   }, [currentIndex, showExplanation]);
 
-  // Auto-submit when timer reaches 0
+  // When timer reaches 0, trigger the time-expired state (red blink + reveal button)
   useEffect(() => {
-    if (timeLeft === 0 && !showExplanation && currentQ && hasStartedRef.current) {
-      handleTimeUp();
+    if (timeLeft === 0 && !showExplanation && !timeExpired && currentQ && hasStartedRef.current) {
+      setTimeExpired(true);
+      setShowRedBlink(true);
+      posthog.capture('question_timeout', { section, topic, question_id: currentQ.id });
+      // Remove blink animation after it plays
+      setTimeout(() => setShowRedBlink(false), 1800);
     }
   }, [timeLeft]);
 
-  const handleTimeUp = useCallback(() => {
+  // Check if we should show the notification prompt
+  const checkNotificationPrompt = useCallback(() => {
+    if (notificationAccepted) return;
+    sessionCompletionsRef.current += 1;
+    const count = sessionCompletionsRef.current;
+    // First prompt at 4, re-prompt at 10 if dismissed once
+    const shouldPrompt =
+      (notificationDismissCount === 0 && count === 4) ||
+      (notificationDismissCount === 1 && count === 10);
+    if (shouldPrompt) {
+      setShowNotificationModal(true);
+    }
+  }, [notificationAccepted, notificationDismissCount]);
+
+  const handleRevealAnswer = useCallback(() => {
     const timeSpent = currentQ.timeLimit || 60;
+    checkNotificationPrompt();
     if (!isPuzzle) {
-      // Aptitude: auto-record result on timeout
+      // Aptitude: record result on reveal
       recordAttempt(currentQ.id, selectedOption === currentQ.answer, timeSpent, section);
     }
     // Puzzles: defer to self-assessment buttons
-    posthog.capture('question_timeout', { section, topic, question_id: currentQ.id });
     setShowExplanation(true);
-  }, [currentQ, selectedOption, isPuzzle, section, topic, recordAttempt]);
+  }, [currentQ, selectedOption, isPuzzle, section, recordAttempt, checkNotificationPrompt]);
 
   if (!currentQ) return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-surface">
@@ -149,8 +175,31 @@ export default function PracticeFlow() {
 
   // --- Handlers ---
   const handleOptionSelect = (index) => {
-    if (showExplanation) return;
+    if (showExplanation || timeExpired) return;
     setSelectedOption(index);
+  };
+
+
+  const handleNotificationAccept = async () => {
+    acceptNotification();
+    setShowNotificationModal(false);
+    posthog.capture('notification_accepted');
+    // Trigger OneSignal native browser prompt
+    try {
+      if (window.OneSignalDeferred) {
+        window.OneSignalDeferred.push(async (OneSignal) => {
+          await OneSignal.Notifications.requestPermission();
+        });
+      }
+    } catch (e) {
+      console.warn('OneSignal prompt failed:', e);
+    }
+  };
+
+  const handleNotificationDismiss = () => {
+    dismissNotificationPrompt();
+    setShowNotificationModal(false);
+    posthog.capture('notification_dismissed', { dismissCount: notificationDismissCount + 1 });
   };
 
   const handleSubmitAptitude = () => {
@@ -161,6 +210,7 @@ export default function PracticeFlow() {
     recordAttempt(currentQ.id, isCorrect, timeSpent, section);
     posthog.capture('question_completed', { section, topic, question_id: currentQ.id, isCorrect, timeSpent });
     setShowExplanation(true);
+    checkNotificationPrompt();
   };
 
   const handleSubmitPuzzle = () => {
@@ -176,6 +226,7 @@ export default function PracticeFlow() {
     recordAttempt(currentQ.id, gotItRight, timeSpent, section);
     posthog.capture('question_completed', { section, topic, question_id: currentQ.id, isCorrect: gotItRight, timeSpent });
     setPuzzleSelfAssessed(true);
+    checkNotificationPrompt();
   };
 
   const handleNext = () => {
@@ -205,6 +256,7 @@ export default function PracticeFlow() {
 
   const isCompleted = showExplanation;
   const canSubmit = isPuzzle ? puzzleAnswer.trim().length > 0 : selectedOption !== null;
+  const isLocked = timeExpired || isCompleted;
 
   return (
     <div className="text-on-background min-h-screen flex flex-col items-center bg-background font-body-md text-[16px] leading-[24px] font-medium">
@@ -221,7 +273,12 @@ export default function PracticeFlow() {
 
         {/* Question Card */}
         <div className="px-4 sm:px-margin-mobile pt-sm flex-1 flex flex-col">
-          <div className="bg-surface-container-lowest rounded-[24px] sm:rounded-[28px] p-5 sm:p-md shadow-[0_4px_20px_rgba(0,0,0,0.04)] border border-surface-variant/40 flex flex-col mb-lg">
+          <div
+            className={`bg-surface-container-lowest rounded-[24px] sm:rounded-[28px] p-5 sm:p-md shadow-[0_4px_20px_rgba(0,0,0,0.04)] border border-surface-variant/40 flex flex-col mb-lg relative overflow-hidden`}
+            style={{
+              animation: showRedBlink ? 'redBlink 1.8s ease-in-out' : 'none',
+            }}
+          >
             {/* Question meta row */}
             <div className="flex items-center gap-2 sm:gap-3 mb-sm flex-wrap">
               <span className="font-label-md text-[11px] sm:text-[12px] leading-[16px] tracking-[0.1em] font-bold text-on-surface-variant uppercase" style={{ fontFamily: 'monospace' }}>
@@ -236,10 +293,17 @@ export default function PracticeFlow() {
               </span>
               <div className="flex items-center gap-2 ml-auto">
                 {!isCompleted && (
-                  <span className="flex items-center gap-1 text-on-surface-variant font-label-md text-[12px] sm:text-[13px] font-semibold">
-                    <span className="material-symbols-outlined text-[18px]">timer</span>
-                    {timeLeft}s
-                  </span>
+                  timeExpired ? (
+                    <span className="flex items-center gap-1 text-[#dc2626] font-label-md text-[12px] sm:text-[13px] font-bold">
+                      <span className="material-symbols-outlined text-[18px]">alarm</span>
+                      Time's Up!
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1 text-on-surface-variant font-label-md text-[12px] sm:text-[13px] font-semibold">
+                      <span className="material-symbols-outlined text-[18px]">timer</span>
+                      {timeLeft}s
+                    </span>
+                  )
                 )}
                 <button
                   onClick={() => setShowReportModal(true)}
@@ -252,8 +316,19 @@ export default function PracticeFlow() {
               </div>
             </div>
 
+            {/* Red overlay flash */}
+            {showRedBlink && (
+              <div
+                className="absolute inset-0 rounded-[24px] sm:rounded-[28px] pointer-events-none z-10"
+                style={{
+                  backgroundColor: '#dc2626',
+                  animation: 'redOverlayFlash 1.8s ease-in-out',
+                }}
+              />
+            )}
+
             {/* Timer progress bar */}
-            {!isCompleted && (
+            {!isCompleted && !timeExpired && (
               <div className="h-[5px] w-full bg-surface-variant/60 rounded-full overflow-hidden mb-lg">
                 <div
                   className="h-full rounded-full transition-all duration-1000 ease-linear"
@@ -274,11 +349,18 @@ export default function PracticeFlow() {
               {currentQ.options.map((opt, i) => {
                 let btnClass = "w-full text-left p-3.5 sm:p-md rounded-[16px] sm:rounded-2xl border-2 transition-all font-body-md text-[14px] sm:text-[16px] ";
                 
-                if (!isCompleted) {
+                if (!isCompleted && !timeExpired) {
                   if (selectedOption === i) {
                     btnClass += "border-primary bg-primary-fixed-dim/20 shadow-sm";
                   } else {
                     btnClass += "border-surface-variant bg-surface-container-lowest hover:border-outline-variant";
+                  }
+                } else if (timeExpired && !isCompleted) {
+                  // Locked state — muted appearance
+                  if (selectedOption === i) {
+                    btnClass += "border-surface-variant bg-surface-container-low opacity-70";
+                  } else {
+                    btnClass += "border-surface-variant bg-surface-container-lowest opacity-50";
                   }
                 } else {
                   if (i === currentQ.answer) {
@@ -295,7 +377,7 @@ export default function PracticeFlow() {
                     key={i} 
                     onClick={() => handleOptionSelect(i)}
                     className={btnClass}
-                    disabled={isCompleted}
+                    disabled={isLocked}
                   >
                     <div className="flex justify-between items-center gap-2">
                       <span className="flex-1">{opt}</span>
@@ -316,8 +398,9 @@ export default function PracticeFlow() {
                   <label className="font-label-md text-[12px] sm:text-[13px] tracking-[0.05em] font-bold text-on-surface-variant uppercase mb-sm block">Your Answer</label>
                   <textarea
                     value={puzzleAnswer}
-                    onChange={(e) => setPuzzleAnswer(e.target.value)}
+                    onChange={(e) => !timeExpired && setPuzzleAnswer(e.target.value)}
                     placeholder="Type your answer or reasoning here..."
+                    disabled={timeExpired}
                     className="w-full min-h-[140px] sm:min-h-[160px] p-4 rounded-[16px] sm:rounded-2xl border-2 border-surface-variant bg-surface-container-lowest text-on-surface font-body-md text-[14px] sm:text-[16px] leading-[22px] sm:leading-[24px] resize-none focus:border-primary focus:outline-none transition-colors placeholder:text-on-surface-variant/40"
                   />
                 </div>
@@ -416,9 +499,71 @@ export default function PracticeFlow() {
         </div>
       )}
 
+      {/* Notification Permission Modal */}
+      {showNotificationModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+          onClick={handleNotificationDismiss}
+        >
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+
+          {/* Bottom sheet */}
+          <div
+            className="relative w-full max-w-[600px] bg-surface-container-lowest rounded-t-[28px] sm:rounded-[28px] p-6 sm:p-8 pb-8 animate-slide-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Handle bar */}
+            <div className="w-10 h-1 rounded-full bg-surface-variant/60 mx-auto mb-6 sm:hidden" />
+
+            {/* Icon */}
+            <div className="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center mx-auto mb-4">
+              <span className="material-symbols-outlined text-[32px] text-primary">notifications_active</span>
+            </div>
+
+            {/* Heading */}
+            <h3 className="font-headline-sm text-[20px] sm:text-[22px] font-bold text-on-surface text-center mb-2">
+              Stay on track! 🎯
+            </h3>
+
+            {/* Message */}
+            <p className="font-body-md text-[14px] sm:text-[15px] text-on-surface-variant text-center mb-6 leading-relaxed">
+              This is to ensure you do daily practice.<br />
+              <span className="text-[13px] opacity-70">PS — I won't spam 😊</span>
+            </p>
+
+            {/* Accept button */}
+            <button
+              onClick={handleNotificationAccept}
+              className="w-full py-3.5 sm:py-md rounded-[16px] sm:rounded-2xl font-label-md text-[16px] sm:text-lg font-semibold bg-primary text-white shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-2 mb-3"
+            >
+              <span className="material-symbols-outlined text-[20px]">notifications</span>
+              Allow Notifications
+            </button>
+
+            {/* Dismiss link */}
+            <button
+              onClick={handleNotificationDismiss}
+              className="w-full py-2 font-body-sm text-[13px] sm:text-[14px] text-on-surface-variant/60 hover:text-on-surface-variant transition-colors text-center"
+            >
+              Not now
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Bottom action button */}
       <div className="fixed bottom-0 left-0 w-full px-4 py-3 sm:p-margin-mobile bg-surface max-w-[600px] left-1/2 -translate-x-1/2 border-t border-surface-variant">
-        {!isCompleted ? (
+        {timeExpired && !isCompleted ? (
+          /* Reveal Answer button — shown after time expires */
+          <button
+            onClick={handleRevealAnswer}
+            className="w-full py-3.5 sm:py-md rounded-[16px] sm:rounded-2xl font-label-md text-[16px] sm:text-lg font-semibold bg-[#dc2626] text-white shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          >
+            <span className="material-symbols-outlined text-[20px]">visibility</span>
+            Reveal Answer
+          </button>
+        ) : !isCompleted ? (
           <button 
             onClick={isPuzzle ? handleSubmitPuzzle : handleSubmitAptitude}
             disabled={!canSubmit}

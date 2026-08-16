@@ -118,3 +118,23 @@
   from { opacity: 1; }
   to { opacity: 0; }
 }
+
+@keyframes redBlink {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); border-color: transparent; }
+  15% { box-shadow: 0 0 30px 8px rgba(220, 38, 38, 0.35); border-color: #dc2626; }
+  30% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); border-color: transparent; }
+  45% { box-shadow: 0 0 30px 8px rgba(220, 38, 38, 0.35); border-color: #dc2626; }
+  60% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); border-color: transparent; }
+  75% { box-shadow: 0 0 30px 8px rgba(220, 38, 38, 0.35); border-color: #dc2626; }
+  90% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); border-color: transparent; }
+}
+
+@keyframes redOverlayFlash {
+  0%, 100% { opacity: 0; }
+  15% { opacity: 0.12; }
+  30% { opacity: 0; }
+  45% { opacity: 0.12; }
+  60% { opacity: 0; }
+  75% { opacity: 0.12; }
+  90% { opacity: 0; }
+}
