@@ -71,7 +71,15 @@ export default function Home() {
             alt="Apti"
             className="h-10 sm:h-12 w-auto object-contain"
           />
-          {!notificationAccepted && (
+          {notificationAccepted ? (
+            <div
+              className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-[#f6fff5] border-2 border-[#006a3f]/30 text-[#006a3f]"
+              title="Daily reminders are on"
+            >
+              <span className="material-symbols-outlined text-[20px]">notifications_active</span>
+              <span className="font-label-md text-[12px] sm:text-[13px] font-semibold">Reminder ON 🔥</span>
+            </div>
+          ) : (
             <button
               onClick={async () => {
                 setNotifLoading(true);
