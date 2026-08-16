@@ -523,12 +523,12 @@ export default function PracticeFlow() {
 
             {/* Heading */}
             <h3 className="font-headline-sm text-[20px] sm:text-[22px] font-bold text-on-surface text-center mb-2">
-              Stay on track! 🎯
+              Daily Practice Reminder 🎯
             </h3>
 
             {/* Message */}
             <p className="font-body-md text-[14px] sm:text-[15px] text-on-surface-variant text-center mb-6 leading-relaxed">
-              This is to ensure you do daily practice.<br />
+              This will <strong>only</strong> give 1 notification in a day!! <br />
               <span className="text-[13px] opacity-70">PS — I won't spam 😊</span>
             </p>
 
@@ -538,7 +538,7 @@ export default function PracticeFlow() {
               className="w-full py-3.5 sm:py-md rounded-[16px] sm:rounded-2xl font-label-md text-[16px] sm:text-lg font-semibold bg-primary text-white shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-2 mb-3"
             >
               <span className="material-symbols-outlined text-[20px]">notifications</span>
-              Allow Notifications
+              Yahhh Placement chahiye 😋
             </button>
 
             {/* Dismiss link */}
@@ -546,7 +546,7 @@ export default function PracticeFlow() {
               onClick={handleNotificationDismiss}
               className="w-full py-2 font-body-sm text-[13px] sm:text-[14px] text-on-surface-variant/60 hover:text-on-surface-variant transition-colors text-center"
             >
-              Not now
+              Nhi chahiye ☠️
             </button>
           </div>
         </div>
