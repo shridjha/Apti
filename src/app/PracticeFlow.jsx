@@ -5,6 +5,15 @@ import puzzlesData from '../data/puzzles.json';
 import { useProgressStore } from '../store/useProgressStore';
 import posthog from 'posthog-js';
 
+const isPushSupported = () => {
+  return (
+    typeof window !== 'undefined' &&
+    'serviceWorker' in navigator &&
+    'PushManager' in window &&
+    'Notification' in window
+  );
+};
+
 export default function PracticeFlow() {
   const { section } = useParams();
   const [searchParams] = useSearchParams();
@@ -141,7 +150,7 @@ export default function PracticeFlow() {
 
   // Check if we should show the notification prompt
   const checkNotificationPrompt = useCallback(() => {
-    if (notificationAccepted) return;
+    if (!isPushSupported() || notificationAccepted) return;
     sessionCompletionsRef.current += 1;
     const count = sessionCompletionsRef.current;
     // First prompt at 4, re-prompt at 10 if dismissed once, final try at 20
@@ -185,6 +194,11 @@ export default function PracticeFlow() {
     setShowNotificationModal(false);
     posthog.capture('notification_accepted');
 
+    if (!window.OneSignal) {
+      alert("Your browser doesn't support this 😔, use Chrome or turn off adblockers for daily reminders.");
+      return;
+    }
+
     // Check current browser permission state
     const currentPermission = typeof Notification !== 'undefined' ? Notification.permission : 'default';
 
@@ -192,11 +206,9 @@ export default function PracticeFlow() {
       // Already granted — just register with OneSignal and mark accepted
       acceptNotification();
       try {
-        if (window.OneSignalDeferred) {
-          window.OneSignalDeferred.push(async (OneSignal) => {
-            await OneSignal.Notifications.requestPermission();
-          });
-        }
+        window.OneSignalDeferred.push(async (OneSignal) => {
+          await OneSignal.Notifications.requestPermission();
+        });
       } catch (e) {
         console.warn('OneSignal registration failed:', e);
       }
@@ -207,20 +219,12 @@ export default function PracticeFlow() {
     } else {
       // 'default' — trigger the browser's native permission dialog
       try {
-        if (window.OneSignalDeferred) {
-          window.OneSignalDeferred.push(async (OneSignal) => {
-            const permission = await OneSignal.Notifications.requestPermission();
-            if (Notification.permission === 'granted') {
-              acceptNotification();
-            }
-          });
-        } else {
-          // Fallback if OneSignal isn't loaded
-          const result = await Notification.requestPermission();
-          if (result === 'granted') {
+        window.OneSignalDeferred.push(async (OneSignal) => {
+          const permission = await OneSignal.Notifications.requestPermission();
+          if (Notification.permission === 'granted') {
             acceptNotification();
           }
-        }
+        });
       } catch (e) {
         console.warn('OneSignal prompt failed:', e);
       }

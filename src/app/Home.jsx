@@ -5,6 +5,15 @@ import puzzlesData from '../data/puzzles.json';
 import { useProgressStore } from '../store/useProgressStore';
 import posthog from 'posthog-js';
 
+const isPushSupported = () => {
+  return (
+    typeof window !== 'undefined' &&
+    'serviceWorker' in navigator &&
+    'PushManager' in window &&
+    'Notification' in window
+  );
+};
+
 export default function Home() {
   const {
     completedQuestions,
@@ -71,52 +80,54 @@ export default function Home() {
             alt="Apti"
             className="h-10 sm:h-12 w-auto object-contain"
           />
-          {notificationAccepted ? (
-            <div
-              className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-[#f6fff5] border-2 border-[#006a3f]/30 text-[#006a3f]"
-              title="Daily reminders are on"
-            >
-              <span className="material-symbols-outlined text-[20px]">notifications_active</span>
-              <span className="font-label-md text-[12px] sm:text-[13px] font-semibold">Reminder ON 🔥</span>
-            </div>
-          ) : (
-            <button
-              onClick={async () => {
-                setNotifLoading(true);
-                posthog.capture('notification_home_clicked');
-                const currentPermission = typeof Notification !== 'undefined' ? Notification.permission : 'default';
-                if (currentPermission === 'granted') {
-                  acceptNotification();
-                  try {
-                    if (window.OneSignalDeferred) {
+          {isPushSupported() && (
+            notificationAccepted ? (
+              <div
+                className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-[#f6fff5] border-2 border-[#006a3f]/30 text-[#006a3f]"
+                title="Daily reminders are on"
+              >
+                <span className="material-symbols-outlined text-[20px]">notifications_active</span>
+                <span className="font-label-md text-[12px] sm:text-[13px] font-semibold">Reminder ON 🔥</span>
+              </div>
+            ) : (
+              <button
+                onClick={async () => {
+                  setNotifLoading(true);
+                  posthog.capture('notification_home_clicked');
+                  
+                  if (!window.OneSignal) {
+                    alert("Your browser doesn't support this 😔, use Chrome or turn off adblockers for daily reminders.");
+                    setNotifLoading(false);
+                    return;
+                  }
+                  
+                  const currentPermission = typeof Notification !== 'undefined' ? Notification.permission : 'default';
+                  if (currentPermission === 'granted') {
+                    acceptNotification();
+                    try {
                       window.OneSignalDeferred.push(async (OneSignal) => {
                         await OneSignal.Notifications.requestPermission();
                       });
-                    }
-                  } catch (e) { /* ignore */ }
-                } else if (currentPermission === 'default') {
-                  try {
-                    if (window.OneSignalDeferred) {
+                    } catch (e) { /* ignore */ }
+                  } else if (currentPermission === 'default') {
+                    try {
                       window.OneSignalDeferred.push(async (OneSignal) => {
                         await OneSignal.Notifications.requestPermission();
                         if (Notification.permission === 'granted') {
                           acceptNotification();
                         }
                       });
-                    } else {
-                      const result = await Notification.requestPermission();
-                      if (result === 'granted') acceptNotification();
-                    }
-                  } catch (e) { /* ignore */ }
-                }
-                setNotifLoading(false);
-              }}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-primary-fixed/60 hover:bg-primary-fixed active:scale-95 transition-all text-on-primary-fixed"
-              title="Enable daily reminders"
-            >
-              <span className="material-symbols-outlined text-[20px]">notifications</span>
-              <span className="font-label-md text-[12px] sm:text-[13px] font-semibold">Remind me</span>
-            </button>
+                    } catch (e) { /* ignore */ }
+                  }
+                  setNotifLoading(false);
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-primary-fixed/60 hover:bg-primary-fixed active:scale-95 transition-all text-on-primary-fixed"
+                title="Enable daily reminders"
+              >
+                <span className="material-symbols-outlined text-[20px]">notifications</span>
+                <span className="font-label-md text-[12px] sm:text-[13px] font-semibold">Remind me</span>
+              </button>
+            )
           )}
         </header>
         <div className="px-4 sm:px-margin-mobile pt-sm pb-xl">
