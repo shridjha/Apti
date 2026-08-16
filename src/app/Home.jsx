@@ -80,26 +80,25 @@ export default function Home() {
             alt="Apti"
             className="h-10 sm:h-12 w-auto object-contain"
           />
-          {isPushSupported() && (
-            notificationAccepted ? (
-              <div
-                className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-[#f6fff5] border-2 border-[#006a3f]/30 text-[#006a3f]"
-                title="Daily reminders are on"
-              >
-                <span className="material-symbols-outlined text-[20px]">notifications_active</span>
-                <span className="font-label-md text-[12px] sm:text-[13px] font-semibold">Reminder ON 🔥</span>
-              </div>
-            ) : (
-              <button
-                onClick={async () => {
-                  setNotifLoading(true);
-                  posthog.capture('notification_home_clicked');
-                  
-                  if (!window.OneSignal) {
-                    alert("Your browser doesn't support this 😔, use Chrome or turn off adblockers for daily reminders.");
-                    setNotifLoading(false);
-                    return;
-                  }
+          {notificationAccepted ? (
+            <div
+              className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-[#f6fff5] border-2 border-[#006a3f]/30 text-[#006a3f]"
+              title="Daily reminders are on"
+            >
+              <span className="material-symbols-outlined text-[20px]">notifications_active</span>
+              <span className="font-label-md text-[12px] sm:text-[13px] font-semibold">Reminder ON 🔥</span>
+            </div>
+          ) : (
+            <button
+              onClick={async () => {
+                setNotifLoading(true);
+                posthog.capture('notification_home_clicked');
+                
+                if (!isPushSupported() || !window.OneSignal) {
+                  alert("Your browser doesn't support this 😔, use Chrome or turn off adblockers for daily reminders.");
+                  setNotifLoading(false);
+                  return;
+                }
                   
                   const currentPermission = typeof Notification !== 'undefined' ? Notification.permission : 'default';
                   if (currentPermission === 'granted') {
@@ -126,8 +125,7 @@ export default function Home() {
               >
                 <span className="material-symbols-outlined text-[20px]">notifications</span>
                 <span className="font-label-md text-[12px] sm:text-[13px] font-semibold">Remind me</span>
-              </button>
-            )
+            </button>
           )}
         </header>
         <div className="px-4 sm:px-margin-mobile pt-sm pb-xl">

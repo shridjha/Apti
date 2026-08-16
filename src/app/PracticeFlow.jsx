@@ -150,7 +150,7 @@ export default function PracticeFlow() {
 
   // Check if we should show the notification prompt
   const checkNotificationPrompt = useCallback(() => {
-    if (!isPushSupported() || notificationAccepted) return;
+    if (notificationAccepted) return;
     sessionCompletionsRef.current += 1;
     const count = sessionCompletionsRef.current;
     // First prompt at 4, re-prompt at 10 if dismissed once, final try at 20
@@ -194,7 +194,7 @@ export default function PracticeFlow() {
     setShowNotificationModal(false);
     posthog.capture('notification_accepted');
 
-    if (!window.OneSignal) {
+    if (!isPushSupported() || !window.OneSignal) {
       alert("Your browser doesn't support this 😔, use Chrome or turn off adblockers for daily reminders.");
       return;
     }
