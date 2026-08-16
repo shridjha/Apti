@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import aptitudeData from '../data/aptitude.json';
 import puzzlesData from '../data/puzzles.json';
@@ -12,7 +12,11 @@ export default function Home() {
     getWeeklyStats,
     streaks,
     lastActive,
+    notificationAccepted,
+    acceptNotification,
   } = useProgressStore();
+
+  const [notifLoading, setNotifLoading] = useState(false);
 
   const todayPractice = getTodayPracticeMinutes();
   const todayMins = todayPractice.minutes;
@@ -61,12 +65,51 @@ export default function Home() {
       {/* Mobile Container */}
       <main className="w-full max-w-[600px] pb-12">
         {/* TopAppBar */}
-        <header className="bg-background sticky top-0 z-40 flex items-center justify-start px-4 sm:px-6 py-4">
+        <header className="bg-background sticky top-0 z-40 flex items-center justify-between px-4 sm:px-6 py-4">
           <img
             src="/logo.png"
             alt="Apti"
             className="h-10 sm:h-12 w-auto object-contain"
           />
+          {!notificationAccepted && (
+            <button
+              onClick={async () => {
+                setNotifLoading(true);
+                posthog.capture('notification_home_clicked');
+                const currentPermission = typeof Notification !== 'undefined' ? Notification.permission : 'default';
+                if (currentPermission === 'granted') {
+                  acceptNotification();
+                  try {
+                    if (window.OneSignalDeferred) {
+                      window.OneSignalDeferred.push(async (OneSignal) => {
+                        await OneSignal.Notifications.requestPermission();
+                      });
+                    }
+                  } catch (e) { /* ignore */ }
+                } else if (currentPermission === 'default') {
+                  try {
+                    if (window.OneSignalDeferred) {
+                      window.OneSignalDeferred.push(async (OneSignal) => {
+                        await OneSignal.Notifications.requestPermission();
+                        if (Notification.permission === 'granted') {
+                          acceptNotification();
+                        }
+                      });
+                    } else {
+                      const result = await Notification.requestPermission();
+                      if (result === 'granted') acceptNotification();
+                    }
+                  } catch (e) { /* ignore */ }
+                }
+                setNotifLoading(false);
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-primary-fixed/60 hover:bg-primary-fixed active:scale-95 transition-all text-on-primary-fixed"
+              title="Enable daily reminders"
+            >
+              <span className="material-symbols-outlined text-[20px]">notifications</span>
+              <span className="font-label-md text-[12px] sm:text-[13px] font-semibold">Remind me</span>
+            </button>
+          )}
         </header>
         <div className="px-4 sm:px-margin-mobile pt-sm pb-xl">
           {/* Greeting Section */}
