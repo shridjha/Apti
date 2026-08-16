@@ -4,15 +4,7 @@ import aptitudeData from '../data/aptitude.json';
 import puzzlesData from '../data/puzzles.json';
 import { useProgressStore } from '../store/useProgressStore';
 import posthog from 'posthog-js';
-
-const isPushSupported = () => {
-  return (
-    typeof window !== 'undefined' &&
-    'serviceWorker' in navigator &&
-    'PushManager' in window &&
-    'Notification' in window
-  );
-};
+import { isPushSupported, getPushUnsupportedMessage } from '../utils/device';
 
 export default function Home() {
   const {
@@ -95,7 +87,7 @@ export default function Home() {
                 posthog.capture('notification_home_clicked');
                 
                 if (!isPushSupported() || !window.OneSignal) {
-                  alert("Your browser doesn't support this 😔, use Chrome or turn off adblockers for daily reminders.");
+                  alert(getPushUnsupportedMessage());
                   setNotifLoading(false);
                   return;
                 }

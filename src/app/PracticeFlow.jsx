@@ -4,15 +4,7 @@ import aptitudeData from '../data/aptitude.json';
 import puzzlesData from '../data/puzzles.json';
 import { useProgressStore } from '../store/useProgressStore';
 import posthog from 'posthog-js';
-
-const isPushSupported = () => {
-  return (
-    typeof window !== 'undefined' &&
-    'serviceWorker' in navigator &&
-    'PushManager' in window &&
-    'Notification' in window
-  );
-};
+import { isPushSupported, getPushUnsupportedMessage } from '../utils/device';
 
 export default function PracticeFlow() {
   const { section } = useParams();
@@ -195,7 +187,7 @@ export default function PracticeFlow() {
     posthog.capture('notification_accepted');
 
     if (!isPushSupported() || !window.OneSignal) {
-      alert("Your browser doesn't support this 😔, use Chrome or turn off adblockers for daily reminders.");
+      alert(getPushUnsupportedMessage());
       return;
     }
 

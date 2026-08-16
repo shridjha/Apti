@@ -1,0 +1,20 @@
+{
+  "name": "Apti",
+  "short_name": "Apti",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF9FD",
+  "theme_color": "#FD6E20",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
