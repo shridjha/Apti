@@ -144,10 +144,11 @@ export default function PracticeFlow() {
     if (notificationAccepted) return;
     sessionCompletionsRef.current += 1;
     const count = sessionCompletionsRef.current;
-    // First prompt at 4, re-prompt at 10 if dismissed once
+    // First prompt at 4, re-prompt at 10 if dismissed once, final try at 20
     const shouldPrompt =
       (notificationDismissCount === 0 && count === 4) ||
-      (notificationDismissCount === 1 && count === 10);
+      (notificationDismissCount === 1 && count === 10) ||
+      (notificationDismissCount === 2 && count === 20);
     if (shouldPrompt) {
       setShowNotificationModal(true);
     }
@@ -181,18 +182,48 @@ export default function PracticeFlow() {
 
 
   const handleNotificationAccept = async () => {
-    acceptNotification();
     setShowNotificationModal(false);
     posthog.capture('notification_accepted');
-    // Trigger OneSignal native browser prompt
-    try {
-      if (window.OneSignalDeferred) {
-        window.OneSignalDeferred.push(async (OneSignal) => {
-          await OneSignal.Notifications.requestPermission();
-        });
+
+    // Check current browser permission state
+    const currentPermission = typeof Notification !== 'undefined' ? Notification.permission : 'default';
+
+    if (currentPermission === 'granted') {
+      // Already granted — just register with OneSignal and mark accepted
+      acceptNotification();
+      try {
+        if (window.OneSignalDeferred) {
+          window.OneSignalDeferred.push(async (OneSignal) => {
+            await OneSignal.Notifications.requestPermission();
+          });
+        }
+      } catch (e) {
+        console.warn('OneSignal registration failed:', e);
       }
-    } catch (e) {
-      console.warn('OneSignal prompt failed:', e);
+    } else if (currentPermission === 'denied') {
+      // Browser previously blocked — can't re-prompt, treat as dismiss
+      // Don't mark as accepted so modal can re-appear if they reset browser settings
+      posthog.capture('notification_browser_denied');
+    } else {
+      // 'default' — trigger the browser's native permission dialog
+      try {
+        if (window.OneSignalDeferred) {
+          window.OneSignalDeferred.push(async (OneSignal) => {
+            const permission = await OneSignal.Notifications.requestPermission();
+            if (Notification.permission === 'granted') {
+              acceptNotification();
+            }
+          });
+        } else {
+          // Fallback if OneSignal isn't loaded
+          const result = await Notification.requestPermission();
+          if (result === 'granted') {
+            acceptNotification();
+          }
+        }
+      } catch (e) {
+        console.warn('OneSignal prompt failed:', e);
+      }
     }
   };
 
@@ -523,12 +554,12 @@ export default function PracticeFlow() {
 
             {/* Heading */}
             <h3 className="font-headline-sm text-[20px] sm:text-[22px] font-bold text-on-surface text-center mb-2">
-              Daily Practice Reminder 🎯
+              Daily Reminder 🎯
             </h3>
 
             {/* Message */}
             <p className="font-body-md text-[14px] sm:text-[15px] text-on-surface-variant text-center mb-6 leading-relaxed">
-              This will <strong>only</strong> give 1 notification in a day!! <br />
+              This will only give 1 notification in a day!! <br />
               <span className="text-[13px] opacity-70">PS — I won't spam 😊</span>
             </p>
 
@@ -538,7 +569,7 @@ export default function PracticeFlow() {
               className="w-full py-3.5 sm:py-md rounded-[16px] sm:rounded-2xl font-label-md text-[16px] sm:text-lg font-semibold bg-primary text-white shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-2 mb-3"
             >
               <span className="material-symbols-outlined text-[20px]">notifications</span>
-              Yahhh Placement chahiye 😋
+              Placement chahiye 😋
             </button>
 
             {/* Dismiss link */}
