@@ -10,10 +10,10 @@ import '@fontsource/be-vietnam-pro/400.css';
 
 // Initialize PostHog
 posthog.init('phc_nCNSKomSXZQ3eEN9R2LSCtGCmrpoTMfFWND2dh27eYCV', {
- api_host: "https://t.apti.live",
+  api_host: "https://t.apti.live",
   ui_host: "https://us.posthog.com",
-  defaults: "2026-05-30",
-  person_profiles: "identified_only",
+  person_profiles: "always",
+  persistence: "localStorage+cookie",
   loaded: (ph) => {
     ph.capture('app_opened');
   }
