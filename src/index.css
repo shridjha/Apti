@@ -102,6 +102,12 @@
   .animate-slide-down {
     animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1), fadeOut 0.4s ease 2s forwards;
   }
+  .skeleton {
+    background: linear-gradient(90deg, #e8e8e8 25%, #f3f3f3 50%, #e8e8e8 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: 12px;
+  }
 }
 
 @keyframes slideUp {
@@ -112,6 +118,11 @@
 @keyframes slideDown {
   from { transform: translate(-50%, -20px); opacity: 0; }
   to { transform: translate(-50%, 0); opacity: 1; }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 @keyframes fadeOut {
@@ -137,4 +148,9 @@
   60% { opacity: 0; }
   75% { opacity: 0.12; }
   90% { opacity: 0; }
+}
+
+@keyframes counterGlow {
+  0% { transform: translate(0, 0) scale(1); opacity: 0.15; }
+  100% { transform: translate(10px, 10px) scale(1.2); opacity: 0.25; }
 }

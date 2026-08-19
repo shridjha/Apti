@@ -1,10 +1,49 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import aptitudeData from '../data/aptitude.json';
 import puzzlesData from '../data/puzzles.json';
 import { useProgressStore } from '../store/useProgressStore';
 import posthog from 'posthog-js';
 import { isPushSupported, getPushUnsupportedMessage } from '../utils/device';
+
+// ── Animated count-up hook ──────────────────────────────────────────
+function useCountUp(target, duration = 2000, startOnMount = false) {
+  const [count, setCount] = useState(0);
+  const [started, setStarted] = useState(startOnMount);
+  const rafRef = useRef(null);
+
+  const start = useCallback(() => setStarted(true), []);
+
+  useEffect(() => {
+    if (!started || target <= 0) return;
+    let startTime = null;
+
+    const step = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease-out cubic for a satisfying deceleration
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(eased * target));
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(step);
+      } else {
+        setCount(target);
+      }
+    };
+
+    rafRef.current = requestAnimationFrame(step);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [started, target, duration]);
+
+  return { count, start };
+}
+
+// ── Community stats (hardcoded — edit these whenever you want) ──────
+const COMMUNITY_STATS = {
+  students: 1764 ,   // ← change this number
+  questions: 3006,  // ← change this number
+};
 
 export default function Home() {
   const {
@@ -16,6 +55,13 @@ export default function Home() {
     notificationAccepted,
     acceptNotification,
   } = useProgressStore();
+
+  // Skeleton loading state on first mount
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 600);
+    return () => clearTimeout(t);
+  }, []);
 
   const [notifLoading, setNotifLoading] = useState(false);
 
@@ -37,6 +83,30 @@ export default function Home() {
   // React-controlled state for progress bar transition
   const [aptitudeWidth, setAptitudeWidth] = React.useState(0);
   const [puzzlesWidth, setPuzzlesWidth] = React.useState(0);
+
+  // Community counter stats
+  const studentsCounter = useCountUp(COMMUNITY_STATS.students, 2200);
+  const questionsCounter = useCountUp(COMMUNITY_STATS.questions, 2400);
+  const counterRef = useRef(null);
+  const counterTriggered = useRef(false);
+
+  useEffect(() => {
+    if (isLoading) return;
+    const node = counterRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !counterTriggered.current) {
+          counterTriggered.current = true;
+          studentsCounter.start();
+          questionsCounter.start();
+        }
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [isLoading]);
 
   useEffect(() => {
     // Send user profile stats to PostHog for PM segmentation and cohort analysis
@@ -60,6 +130,50 @@ export default function Home() {
     }, 200);
     return () => clearTimeout(timeout);
   }, [aptitudePercent, puzzlesPercent]);
+
+
+
+  if (isLoading) {
+    return (
+      <div className="text-on-background min-h-screen flex flex-col items-center font-body-md text-[16px] leading-[24px] font-medium">
+        <main className="w-full max-w-[600px] pb-12">
+          {/* Skeleton Header */}
+          <header className="flex items-center justify-between px-4 sm:px-6 py-4">
+            <div className="skeleton h-10 w-28" />
+            <div className="skeleton h-9 w-32 rounded-full" />
+          </header>
+
+          <div className="px-4 sm:px-margin-mobile pt-sm pb-xl">
+            {/* Skeleton Greeting */}
+            <section className="mb-lg mt-sm space-y-2">
+              <div className="skeleton h-4 w-3/4" />
+              <div className="skeleton h-3 w-1/2" />
+            </section>
+
+            {/* Skeleton Counter Banner */}
+            <section className="mb-xl">
+              <div className="skeleton h-[120px] w-full rounded-[20px]" />
+            </section>
+
+            {/* Skeleton Recent Activity */}
+            <section className="mb-xl">
+              <div className="skeleton h-7 w-40 mb-md" />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="skeleton h-[120px] rounded-[20px]" />
+                <div className="skeleton h-[120px] rounded-[20px]" />
+              </div>
+            </section>
+
+            {/* Skeleton Practice Cards */}
+            <section className="space-y-10 mt-2">
+              <div className="skeleton h-[220px] w-full rounded-[20px]" />
+              <div className="skeleton h-[220px] w-full rounded-[20px]" />
+            </section>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="text-on-background min-h-screen flex flex-col items-center font-body-md text-[16px] leading-[24px] font-medium">
@@ -127,6 +241,90 @@ export default function Home() {
             <p className="font-body-md text-[11px] sm:text-[13px] font-medium [word-spacing:6px] opacity-80">
   YOUR PROGRESS IS SAVED LOCALLY
 </p>
+          </section>
+
+          {/* Community Counter Banner */}
+          <section
+            ref={counterRef}
+            className="mb-xl"
+          >
+            <div
+              className="relative rounded-[20px] sm:rounded-[24px] p-5 sm:p-6 overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, #1a1410 0%, #2e1a0a 50%, #1c1208 100%)',
+              }}
+            >
+              {/* Subtle animated glow orbs */}
+              <div
+                className="absolute -top-10 -left-10 w-40 h-40 rounded-full opacity-20 blur-3xl pointer-events-none"
+                style={{
+                  background: 'radial-gradient(circle, #fd6e20, transparent 70%)',
+                  animation: 'counterGlow 4s ease-in-out infinite alternate',
+                }}
+              />
+              <div
+                className="absolute -bottom-10 -right-10 w-40 h-40 rounded-full opacity-15 blur-3xl pointer-events-none"
+                style={{
+                  background: 'radial-gradient(circle, #e85d04, transparent 70%)',
+                  animation: 'counterGlow 4s ease-in-out 2s infinite alternate',
+                }}
+              />
+
+              <div className="relative z-10">
+                {/* Section Label */}
+                <div className="flex items-center gap-2 mb-4">
+                  <span
+                    className="material-symbols-outlined text-[20px]"
+                    style={{ color: '#ffb596' }}
+                  >community</span>
+                  <span
+                    className="font-label-md text-[11px] sm:text-[12px] tracking-[0.15em] font-bold uppercase"
+                    style={{ color: 'rgba(255,181,150,0.8)' }}
+                  > Impact</span>
+                </div>
+
+                {/* Counter Grid */}
+                <div className="grid grid-cols-2 gap-4 sm:gap-6">
+                  {/* Students Counter */}
+                  <div className="text-center">
+                    <div
+                      className="font-headline-xl text-[32px] sm:text-[40px] leading-none font-extrabold mb-1.5 tabular-nums"
+                      style={{
+                        background: 'linear-gradient(135deg, #ffb596, #fd6e20)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                      }}
+                    >
+                      {studentsCounter.count.toLocaleString()}+
+                    </div>
+                    <p
+                      className="font-body-sm text-[11px] sm:text-[13px] font-semibold leading-tight"
+                      style={{ color: 'rgba(255,255,255,0.7)' }}
+                    >
+                      Students Practised
+                    </p>
+                  </div>
+
+                  {/* Questions Counter */}
+                  <div className="text-center">
+                    <div
+                      className="font-headline-xl text-[32px] sm:text-[40px] leading-none font-extrabold mb-1.5 tabular-nums"
+                      style={{
+                        color: '#ffe0c2',
+                      }}
+                    >
+                      {questionsCounter.count.toLocaleString()}+
+                    </div>
+                    <p
+                      className="font-body-sm text-[11px] sm:text-[13px] font-semibold leading-tight"
+                      style={{ color: 'rgba(255,255,255,0.7)' }}
+                    >
+                      Questions Solved
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </section>
 
           {/* Recent Activity / Stats — ABOVE the cards */}
