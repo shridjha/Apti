@@ -3,10 +3,12 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './app/Home';
 import TopicView from './app/TopicView';
 import PracticeFlow from './app/PracticeFlow';
+import InstallBanner from './components/InstallBanner';
 
 function App() {
   return (
     <Router>
+      <InstallBanner />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/:section" element={<TopicView />} />

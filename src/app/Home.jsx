@@ -39,10 +39,10 @@ function useCountUp(target, duration = 2000, startOnMount = false) {
   return { count, start };
 }
 
-// ── Community stats (hardcoded — edit these whenever you want) ──────
+// ── Community stats Regularly updated with posthog data ──────
 const COMMUNITY_STATS = {
-  students: 1764 ,   // ← change this number
-  questions: 3006,  // ← change this number
+  students: 1830,   // ← change this number
+  questions: 3150,  // ← change this number
 };
 
 export default function Home() {
